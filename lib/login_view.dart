@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import 'package:untitled/feed_view.dart';
+import 'package:untitled/tab_controller.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
 
+  static const routename = '/loginview';
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -18,13 +20,26 @@ class _LoginViewState extends State<LoginView> {
   String password = '';
 
   Future loginUser() async {
-    Navigator.pushReplacementNamed(context, FeedView.routename);
+    Navigator.pushReplacementNamed(context, TabView.routename);
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Color(0xFF6034A8),
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          'Login',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+          ),
+        )
+      ),
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -32,17 +47,15 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 150,),
+                SizedBox(height: 100,),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8,0,0,0),
-                  child: Text(
-                    'UniForm',
-                    style: TextStyle(
-                      fontSize: 40.0,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF6034A8),
+                  child: Image(
+                    image: AssetImage(
+                      'assets/logo.png'
                     ),
-                  ),
+                    width: 200,
+                  )
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),

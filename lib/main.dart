@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/feed_view.dart';
 import 'package:untitled/login_view.dart';
+import 'package:untitled/tab_controller.dart';
+import 'package:untitled/welcome_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +15,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LoginView(),
+      home: TabView(),
       routes: {
+        LoginView.routename: (context) => LoginView(),
         FeedView.routename: (context) => FeedView(),
+        TabView.routename: (context) => TabView(),
       },
     );
   }

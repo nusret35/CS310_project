@@ -41,66 +41,38 @@ class _FeedViewState extends State<FeedView> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-        bottomNavigationBar: menu(),
-        appBar: AppBar(
-          title: Text(
-            'UniForm',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 35.0,
-            ),
-          ),
-          leading: GestureDetector (
-            onTap: () => {},
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.greenAccent,
-                backgroundImage: NetworkImage('https://i1.rgstatic.net/ii/profile.image/279526891376650-1443655812881_Q512/Baris-Altop.jpg'),
-              ),
-            ),
-          ),
-          centerTitle: true,
-          foregroundColor: Color(0xFF6034A8),
-          backgroundColor: Colors.white,
-          elevation: 10.0,
-
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => {},
-          backgroundColor: Color(0xFF6034A8),
-          child: const Icon(Icons.add),
-        ),
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: posts.map((post) => PostCard(
-                    post,
-                    likeButtonAction: (){
-                      increamentLike(post);
-                  }, comment: (){;
-                  }, starButtonAction: (){
-                      favoritePost(post);
-                      },
-                      )
-                      ).toList(),
-                    ),
-                  SizedBox(height: 50.0,)
-                  ]
-                ),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {},
+        backgroundColor: Color(0xFF6034A8),
+        child: const Icon(Icons.add),
+      ),
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: posts.map((post) => PostCard(
+                  post,
+                  likeButtonAction: (){
+                    increamentLike(post);
+                }, comment: (){;
+                }, starButtonAction: (){
+                    favoritePost(post);
+                    },
+                    )
+                    ).toList(),
+                  ),
+                SizedBox(height: 50.0,)
+                ]
               ),
             ),
           ),
         ),
-    );
+      );
 
   }
 
@@ -135,6 +107,7 @@ class _FeedViewState extends State<FeedView> {
                icon: Icon(Icons.person),
               ),
         ],
+
       ),
     );
   }
