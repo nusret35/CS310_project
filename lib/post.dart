@@ -5,24 +5,26 @@ class FormPost {
   final String topic;
   final String description;
   final String time;
-  final int likes;
-  final int comments;
+  int likes;
+  int comments;
+  final String profilePictureURL;
+  bool postFavorited = false;
 
   FormPost(this.topic,
-    this.description,this.time,this.likes,this.comments);
+    this.description,this.time,this.likes,this.comments,this.profilePictureURL);
 }
 
 class PostCard extends StatelessWidget {
   final FormPost post;
-  final VoidCallback like;
+  final VoidCallback likeButtonAction;
   final VoidCallback comment;
-  final VoidCallback star;
+  final VoidCallback starButtonAction;
 
   PostCard(
       this.post, {
-        required this.like,
+        required this.likeButtonAction,
         required this.comment,
-        required this.star,
+        required this.starButtonAction,
       });
 
   @override
@@ -38,7 +40,7 @@ class PostCard extends StatelessWidget {
               children: [
                 Row(
                   children:[
-                    CircleAvatar(backgroundColor: Colors.red,),
+                    CircleAvatar(backgroundColor: Colors.red,backgroundImage: NetworkImage(post.profilePictureURL),),
                     const SizedBox(width: 10.0,),
                     Text(
                     post.topic,
@@ -75,7 +77,7 @@ class PostCard extends StatelessWidget {
                       padding: const EdgeInsets.all(5.0),
 
                       child: TextButton.icon(
-                          onPressed: () => {},
+                          onPressed: likeButtonAction,
                           icon: Icon(
                             Icons.thumb_up,
                             size: 14.0,
@@ -112,8 +114,8 @@ class PostCard extends StatelessWidget {
 
                     IconButton(
                       iconSize: 14,
-                      onPressed: () => {},
-                      icon: const Icon(Icons.star, size: 14, color: Colors.yellowAccent,),
+                      onPressed: starButtonAction,
+                      icon: Icon(Icons.star, size: 14, color: post.postFavorited ? Colors.yellow:Colors.grey,),
                     ),
                   ],
                 )
