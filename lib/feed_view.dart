@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/post.dart';
+import 'package:untitled/util/colors.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class _FeedViewState extends State<FeedView> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => {},
-        backgroundColor: Color(0xFF6034A8),
+        backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       ),
       body: SingleChildScrollView(
@@ -78,13 +79,13 @@ class _FeedViewState extends State<FeedView> {
 
   Widget menu() {
     return Container(
-        color: Colors.white,
+        color: AppColors.whiteTextColor,
       child: TabBar(
-        labelColor: Color(0xFF6034A8),
-        unselectedLabelColor: Colors.grey,
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.grey_tab_control,
         indicatorSize: TabBarIndicatorSize.tab,
         indicatorPadding: EdgeInsets.all(5.0),
-        indicatorColor: Color(0xFF6034A8),
+        indicatorColor: AppColors.primary,
         tabs: [
             Tab(
               text: "Home",

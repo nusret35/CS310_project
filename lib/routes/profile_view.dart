@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/util/colors.dart';
 
 class Profile {
   static const String Name = 'Ali Can';
@@ -8,18 +9,7 @@ class Profile {
   static const String Term = 'Sophomore';
 }
 
-class AppColors {
-  static const Color Purple = Color.fromARGB(255, 108, 7, 170);
-  static const Color Red = Colors.red;
-  static const Color Text = Colors.black;
-  static const Color Background = Colors.white;
-}
 
-class Dimension {
-  static const double parentMargin = 16.0;
-
-  static get regularPadding => EdgeInsets.all(parentMargin);
-}
 
 class ProfileView extends StatelessWidget {
   const ProfileView({Key? key}) : super(key: key);
@@ -42,7 +32,7 @@ class ProfileView extends StatelessWidget {
                       fontSize: 32.0,
                       fontWeight: FontWeight.w600,
                       fontFamily: 'Arial',
-                      color: AppColors.Text,
+                      color: AppColors.textColor,
                     ),
                   ),
                   Padding(
@@ -53,7 +43,7 @@ class ProfileView extends StatelessWidget {
                         fontSize: 18.0,
                         fontFamily: 'Arial',
                         fontWeight: FontWeight.w800,
-                        color: AppColors.Red,
+                        color: AppColors.colorRed,
                       ),
                     ),
                   )
@@ -66,7 +56,7 @@ class ProfileView extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.4,
                     height: MediaQuery.of(context).size.width * 0.4,
                     child: CircleAvatar(
-                      backgroundColor: AppColors.Purple,
+                      backgroundColor: AppColors.primary,
                       radius: MediaQuery.of(context).size.width * 0.4,
                       backgroundImage: AssetImage('assets/empty_profile.png'),
                     ),
@@ -80,7 +70,7 @@ class ProfileView extends StatelessWidget {
                   fontSize: 18.0,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w600,
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Text(
@@ -88,7 +78,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'Arial',
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Padding(padding: const EdgeInsets.fromLTRB(0, 25, 0, 0)),
@@ -98,7 +88,7 @@ class ProfileView extends StatelessWidget {
                   fontSize: 18.0,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w600,
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Text(
@@ -106,7 +96,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'Arial',
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Padding(padding: const EdgeInsets.fromLTRB(0, 25, 0, 0)),
@@ -116,7 +106,7 @@ class ProfileView extends StatelessWidget {
                   fontSize: 18.0,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w600,
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Text(
@@ -124,7 +114,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'Arial',
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Padding(padding: const EdgeInsets.fromLTRB(0, 25, 0, 0)),
@@ -134,7 +124,7 @@ class ProfileView extends StatelessWidget {
                   fontSize: 18.0,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w600,
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Text(
@@ -142,7 +132,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'Arial',
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Padding(padding: const EdgeInsets.fromLTRB(0, 25, 0, 0)),
@@ -152,7 +142,7 @@ class ProfileView extends StatelessWidget {
                   fontSize: 18.0,
                   fontFamily: 'Arial',
                   fontWeight: FontWeight.w600,
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
               Text(
@@ -160,7 +150,7 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14.0,
                   fontFamily: 'Arial',
-                  color: AppColors.Text,
+                  color: AppColors.textColor,
                 ),
               ),
             ],

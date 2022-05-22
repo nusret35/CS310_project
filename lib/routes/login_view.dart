@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
-import 'package:untitled/feed_view.dart';
+import 'package:untitled/routes/profile_view.dart';
 import 'package:untitled/tab_controller.dart';
+import 'package:untitled/util/colors.dart';
+import 'package:untitled/routes/HomePage.dart';
+import 'package:untitled/feed_view.dart';
+
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -20,22 +24,22 @@ class _LoginViewState extends State<LoginView> {
   String password = '';
 
   Future loginUser() async {
-    Navigator.pushReplacementNamed(context, TabView.routename);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(title: "ss")));
   }
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteTextColor,
       appBar: AppBar(
-        backgroundColor: Color(0xFF6034A8),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.whiteTextColor,
         centerTitle: true,
         title: Text(
           'Login',
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.whiteTextColor,
             fontSize: 20.0,
           ),
         )
@@ -166,7 +170,7 @@ class _LoginViewState extends State<LoginView> {
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
-                      color: Color(0xFF6034A8),
+                      color: AppColors.primary,
                       fontWeight: FontWeight.bold,
                       fontSize: 20.0
                     ),

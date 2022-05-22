@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:untitled/util/colors.dart';
 
 class FormPost {
   final String topic;
@@ -40,7 +41,7 @@ class PostCard extends StatelessWidget {
               children: [
                 Row(
                   children:[
-                    CircleAvatar(backgroundColor: Colors.red,backgroundImage: NetworkImage(post.profilePictureURL),),
+                    CircleAvatar(backgroundColor: AppColors.colorRed,backgroundImage: NetworkImage(post.profilePictureURL),),
                     const SizedBox(width: 10.0,),
                     Text(
                     post.topic,
@@ -64,7 +65,7 @@ class PostCard extends StatelessWidget {
                   child: Text(post.description,
                     style: TextStyle(
                       fontSize: 17.0,
-                      color: Colors.black
+                      color: AppColors.textColor,
                     ),
                   ),
                 ),
@@ -81,7 +82,7 @@ class PostCard extends StatelessWidget {
                           icon: Icon(
                             Icons.thumb_up,
                             size: 14.0,
-                            color: Colors.green,
+                            color: AppColors.color_green,
                           ),
                           label: Text(
                             post.likes.toString(),
@@ -97,7 +98,7 @@ class PostCard extends StatelessWidget {
                     const Icon(
                       Icons.comment,
                       size: 14.0,
-                      color: Colors.blue,
+                      color: AppColors.color_blue,
                     ),
 
                     const SizedBox(width: 5),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/login_view.dart';
+import 'package:untitled/routes/login_view.dart';
+import 'package:untitled/routes/signup.dart';
+import 'package:untitled/util/colors.dart';
+
 
 class WelcomeView extends StatelessWidget {
   const WelcomeView({Key? key}) : super(key: key);
@@ -7,7 +10,7 @@ class WelcomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.whiteTextColor,
       body: SafeArea(
         maintainBottomViewPadding: false,
         child: Column(
@@ -29,7 +32,7 @@ class WelcomeView extends StatelessWidget {
                             text:"Welcome to",
                             style: TextStyle(
                               fontSize: 20,
-                              color: Colors.black,
+                              color: AppColors.textColor,
                               fontWeight: FontWeight.w600,
 
                             ),
@@ -47,11 +50,11 @@ class WelcomeView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(29),
                           child: FlatButton(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 80),
-                            color: Colors.deepPurple,
+                            color: AppColors.primary,
                             onPressed: (){
-                              Navigator.pushNamed(context, LoginView.routename);
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginView()));
                             },
-                            child: Text("LOGIN",style: TextStyle(color: Colors.white)),
+                            child: Text("LOGIN",style: TextStyle(color: AppColors.whiteTextColor)),
                           ),
                         ),
                         SizedBox(height: 10,),
@@ -59,9 +62,11 @@ class WelcomeView extends StatelessWidget {
                           borderRadius: BorderRadius.circular(29),
                           child: FlatButton(
                             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 75),
-                            color: Colors.deepPurple,
-                            onPressed: (){},
-                            child: Text("SIGN UP",style: TextStyle(color: Colors.white)),
+                            color: AppColors.primary,
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp()));
+                            },
+                            child: Text("SIGN UP",style: TextStyle(color: AppColors.whiteTextColor)),
                           ),
                         ),
                       ],
