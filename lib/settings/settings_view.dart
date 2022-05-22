@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:untitled/util/colors.dart';
 
 
 
-class Settings extends StatefulWidget {
-  Settings({Key? key,required this.title}) : super(key: key);
+class SettingsView extends StatefulWidget {
+  SettingsView({Key? key,required this.title}) : super(key: key);
   final String title;
   @override
-  _SettingsState createState() => _SettingsState();
+  _SettingsViewState createState() => _SettingsViewState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsViewState extends State<SettingsView> {
   bool isSwitched = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: AppColors.primary,
+        centerTitle: true,
       ),
       body: SettingsList(
         sections: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled/feed_view.dart';
 import 'package:untitled/routes/profile_view.dart';
 import 'package:untitled/routes/schedule_view.dart';
+import 'package:untitled/settings/settings_view.dart';
 import 'package:untitled/util/colors.dart';
 
 class TabView extends StatelessWidget {
@@ -28,6 +29,14 @@ class TabView extends StatelessWidget {
                 ),
               ),
             ),
+            actions: [
+              IconButton(
+                onPressed: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsView(title: 'Settings')));
+                },
+                icon: Icon(Icons.settings)
+              ),
+            ],
             centerTitle: true,
             foregroundColor: AppColors.primary,
             backgroundColor: AppColors.whiteTextColor,
