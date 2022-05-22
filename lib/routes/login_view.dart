@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import 'package:untitled/routes/profile_view.dart';
+import 'package:untitled/routes/welcome_view.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
-import 'package:untitled/routes/HomePage.dart';
 import 'package:untitled/feed_view.dart';
 
 
@@ -24,7 +24,7 @@ class _LoginViewState extends State<LoginView> {
   String password = '';
 
   Future loginUser() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(title: "ss")));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
   }
 
 
@@ -104,7 +104,10 @@ class _LoginViewState extends State<LoginView> {
                           Container(
                             padding: EdgeInsets.fromLTRB(0,20,0,20),
                             child: TextFormField(
-                              keyboardType: TextInputType.visiblePassword,
+                              keyboardType: TextInputType.text,
+                              obscureText: true,
+                              enableSuggestions: false,
+                              autocorrect: false,
                               decoration: InputDecoration(
                                 label: Container(
                                   width: 100,
@@ -149,7 +152,7 @@ class _LoginViewState extends State<LoginView> {
                       }
                     },
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF6034A8)),
+                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
                       foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                     ),
                     child: Center(

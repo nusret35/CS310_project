@@ -3,7 +3,7 @@ import 'package:untitled/util/colors.dart';
 
 List<Map<String, Object>> WALKTHROUGH_ITEMS = [
   {
-    'image' : 'logo.png',
+    'image' : 'assets/logo.png',
     'button_text' : 'Continue',
     'description_rich': RichText(text: TextSpan(children: [
       TextSpan(
@@ -30,7 +30,7 @@ List<Map<String, Object>> WALKTHROUGH_ITEMS = [
 
   },
   {
-    'image' : 'search_icon.png',
+    'image' : 'assets/search_icon.png',
     'button_text' : 'Next',
     'description_rich': RichText(text: TextSpan(children: [
       TextSpan(
@@ -57,7 +57,7 @@ List<Map<String, Object>> WALKTHROUGH_ITEMS = [
     ])),
   },
   {
-    'image' : 'group_icon.png',
+    'image' : 'assets/group_icon.png',
     'button_text' : 'Next',
     'description_rich': RichText(text: TextSpan(children: [
       TextSpan(
@@ -83,7 +83,7 @@ List<Map<String, Object>> WALKTHROUGH_ITEMS = [
     ])),
   },
   {
-    'image' : 'start_icon.png',
+    'image' : 'assets/start_icon.png',
     'button_text' : "Let's Start",
     'description_rich': RichText(text: TextSpan(children: [
       TextSpan(

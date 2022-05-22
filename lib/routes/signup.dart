@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/routes/HomePage.dart';
+import 'package:untitled/routes/welcome_view.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/util/dimensions.dart';
@@ -20,8 +20,8 @@ class _SignUpState extends State<SignUp> {
   String email = '';
   String pass = '';
 
-  Future loginUser() async {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(title: "ss")));
+  Future signUpUser() async {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
   }
 
   @override
@@ -136,11 +136,11 @@ class _SignUpState extends State<SignUp> {
                   onPressed: () async {
                     if(_formKey.currentState!.validate()){
                       _formKey.currentState!.save();
-                      await loginUser();
+                      await signUpUser();
                     }
                   },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF6034A8)),
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
                     foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                   ),
                   child: Center(

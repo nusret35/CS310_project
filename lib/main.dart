@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/tab_controller.dart';
 import 'package:untitled/walkthrough/walkthrough__screen.dart';
-import 'package:untitled/routes/HomePage.dart';
 import 'package:untitled/routes/welcome_view.dart';
+import 'package:untitled/tab_controller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       return MaterialApp(
         home: WelcomeView(),
-      );
+    );
     }
   }
 }

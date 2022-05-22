@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/routes/edit_profile_view.dart';
 import 'package:untitled/util/colors.dart';
 
 class Profile {
@@ -37,13 +38,18 @@ class ProfileView extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(130, 0, 0, 0),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontFamily: 'Arial',
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.colorRed,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileView()));
+                      },
+                      child: const Text(
+                        'Edit',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontFamily: 'Arial',
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.colorRed,
+                        ),
                       ),
                     ),
                   )

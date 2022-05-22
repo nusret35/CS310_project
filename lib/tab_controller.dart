@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/feed_view.dart';
 import 'package:untitled/routes/profile_view.dart';
+import 'package:untitled/routes/schedule_view.dart';
 import 'package:untitled/util/colors.dart';
 
 class TabView extends StatelessWidget {
@@ -10,7 +11,7 @@ class TabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 2,
+    return DefaultTabController(length: 3,
         child: Scaffold(
           appBar: AppBar(
             title: Image(
@@ -36,7 +37,7 @@ class TabView extends StatelessWidget {
           bottomNavigationBar: menu(),
           body: TabBarView(
             children: [
-              FeedView(),ProfileView(),
+              FeedView(),ScheduleView(),ProfileView()
             ],
           ),
         )
@@ -69,6 +70,10 @@ class TabView extends StatelessWidget {
             icon: Icon(Icons.home),
           ),
           Tab(
+            text: "Schedule",
+            icon: Icon(Icons.calendar_today),
+          ),
+          Tab(
             text: "Profile",
             icon: Icon(Icons.person),
           ),
@@ -77,25 +82,4 @@ class TabView extends StatelessWidget {
       ),
     );
   }
-  /*
-  Widget bottomNavBar() {
-    return BottomNavigationBar(
-        selectedItemColor: Color(0xFF6034A8),
-        unselectedItemColor: Colors.grey,
-        elevation: 20.0,
-        ğ
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-          ),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Person',
-          )
-        ],
-    );
-  }
-
-   */
 }

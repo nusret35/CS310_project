@@ -69,7 +69,7 @@ class _WalkthroughItemState extends State<WalkthroughItem> {
               ),
               onTap: () async {
                 if ((widget.index+1) == widget.totalItem) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeView()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => WelcomeView()));
                 } else {
                   await widget.controller.animateToPage(widget.index + 1, curve: Curves.easeIn,duration: Duration(milliseconds: 200),);
                 }
