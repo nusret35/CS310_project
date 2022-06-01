@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:untitled/routes/welcome_view.dart';
 import 'package:untitled/util/colors.dart';
-
+import 'package:untitled/api/auth.dart';
 
 
 class SettingsView extends StatefulWidget {
@@ -13,6 +14,15 @@ class SettingsView extends StatefulWidget {
 
 class _SettingsViewState extends State<SettingsView> {
   bool isSwitched = false;
+  AuthService _auth = AuthService();
+
+  Future signOutUser() async {
+    await _auth.signOut();
+    Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => WelcomeView())
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,12 +47,17 @@ class _SettingsViewState extends State<SettingsView> {
                 leading: Icon(Icons.format_paint),
                 title: Text('Enable custom theme'),
               ),
+              SettingsTile.navigation(
+                leading: Icon(Icons.logout),
+                title: Text('Sign out'),
+                onPressed: (BuildContext context) {
+                  signOutUser();
+                },
+              ),
             ],
           ),
-
         ],
       ),
-
     );
 
   }

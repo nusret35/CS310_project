@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/routes/signup.dart';
+import 'package:untitled/routes/sign_up_view.dart';
 import 'package:untitled/routes/welcome_view.dart';
 import 'package:untitled/util/colors.dart';
 

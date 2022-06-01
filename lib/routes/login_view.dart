@@ -1,11 +1,17 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+
+import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
-import 'package:untitled/routes/profile_view.dart';
-import 'package:untitled/routes/welcome_view.dart';
+import 'package:untitled/api/auth.dart';
+import 'package:untitled/api/auth.dart';
+import 'package:untitled/model/user.dart';
+import 'package:untitled/util/styles.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
-import 'package:untitled/feed_view.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -19,12 +25,75 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
 
+  AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
 
   Future loginUser() async {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
+    dynamic result = await _auth.signInWithEmailPass(email, password);
+    if (result is String)
+      {
+        _showDialog('Login unsuccessful', result);
+      }
+    else if (result is User)
+      {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
+      }
+    else
+      {
+        _showDialog('Login unsuccessful', result.toString());
+      }
+
+  }
+
+  Future<void> _showDialog(String title, String message) async {
+    bool isAndroid = Platform.isAndroid;
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          if(isAndroid) {
+            return AlertDialog(
+              title: Text(title),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    Text(message),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          } else {
+            return CupertinoAlertDialog(
+              title: Text(title, style: kBoldLabelStyle),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    Text(message, style: kLabelStyle),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          }
+
+        });
   }
 
 
@@ -51,7 +120,7 @@ class _LoginViewState extends State<LoginView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 100,),
+                SizedBox(height: 50,),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8,0,0,0),
                   child: Image(
@@ -76,7 +145,7 @@ class _LoginViewState extends State<LoginView> {
                                 if (value != null){
                                   if (EmailValidator.validate(value) == false)
                                   {
-                                    return 'Please enter valid email';
+                                    return 'Please enter a valid email';
                                   }
                                 }
                                 else
@@ -118,6 +187,7 @@ class _LoginViewState extends State<LoginView> {
                                         const Text('Password'),
                                       ],
                                     ),
+
                                 )
                               ),
                               validator: (value){
@@ -142,6 +212,18 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
                 SizedBox(height: 20.0,),
+                TextButton(
+                  onPressed: (){},
+                  child: Text(
+                    'Forgot password?',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.0,),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8,0,8,0),
                   child: OutlinedButton(
@@ -159,26 +241,47 @@ class _LoginViewState extends State<LoginView> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0,15,0,15),
                         child: Text('Login',
-                          style: TextStyle(
+                        style: TextStyle(
                             fontSize: 15.0
+                            ),
                           ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0,),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                  child: OutlinedButton(
+                    onPressed: () async {
+                     dynamic user = await _auth.signInWithGoogle();
+                      if (user != null) {
+                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
+                      }
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0,15,0,15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image(image: AssetImage('assets/google_icon.png'),height: 25, width: 25),
+                            SizedBox(width: 4.0,),
+                            Text('Sign in with Google',
+                            style: TextStyle(
+                                fontSize: 15.0
+                            ),
+                          ),
+                        ],
                         ),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: 20.0,),
-                TextButton(
-                  onPressed: (){},
-                  child: Text(
-                    'Forgot password?',
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0
-                    ),
-                  ),
-                )
               ],
             ),
           ),

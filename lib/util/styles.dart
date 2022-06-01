@@ -23,9 +23,7 @@ final kButtonDarkTextStyle = GoogleFonts.montserrat(
 
 final kAppBarTitleTextStyle = GoogleFonts.montserrat(
   color: AppColors.appBarTitleTextColor,
-  fontSize: 24.0,
-  fontWeight: FontWeight.w600,
-  letterSpacing: -0.7,
+  fontSize: 20.0,
 );
 
 final kBoldLabelStyle = GoogleFonts.montserrat(
@@ -37,4 +35,8 @@ final kBoldLabelStyle = GoogleFonts.montserrat(
 final kLabelStyle = GoogleFonts.montserrat(
   fontSize: 14.0,
   color: AppColors.textColor,
+
+
 );
+
+
