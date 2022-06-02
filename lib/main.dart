@@ -1,9 +1,9 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:untitled/routes/notification_view.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/walkthrough/walkthrough__screen.dart';
 import 'package:untitled/routes/welcome_view.dart';
@@ -12,17 +12,35 @@ import 'package:provider/provider.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:untitled/util/styles.dart';
+import 'analytics.dart';
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MaterialApp(
-    home: MyFirebaseApp()
-  ));
+  await Firebase.initializeApp();
+  runApp(const MyApp());
 }
 
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  static FirebaseAnalytics analytics = AppAnalytics.analytics;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: MyFirebaseApp(analytics: analytics)
+    );
+
+
+  }
+}
+
+
 class MyFirebaseApp extends StatefulWidget {
-  const MyFirebaseApp({Key? key}) : super(key: key);
+  const MyFirebaseApp({Key? key, required this.analytics}) : super(key: key);
+
+  final FirebaseAnalytics analytics;
 
   @override
   State<MyFirebaseApp> createState() => _MyFirebaseAppState();
@@ -33,6 +51,7 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
   int? firstLoad;
   SharedPreferences? prefs;
   final Future<FirebaseApp> _init = Firebase.initializeApp();
+
 
   decideRoute() async {
     prefs = await SharedPreferences.getInstance();
@@ -55,25 +74,25 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
         future: _init,
         builder: (context, snapshot) {
           if(snapshot.hasError)
-            {
-              return ErrorScreen(message: snapshot.error.toString());
-            }
+          {
+            return ErrorScreen(message: snapshot.error.toString());
+          }
           if(snapshot.connectionState  == ConnectionState.done)
-            {
-              if (firstLoad == null) {
-                return Container();
-              }
-              else if(firstLoad == 0) {
-                firstLoad = 1;
-                prefs!.setInt('appInitialLoad', firstLoad!);
-                return MaterialApp(
-                  home: WalkthroughScreen(),
-                );
-              }
-              else {
-                return AuthenticationStatus();
-              }
+          {
+            if (firstLoad == null) {
+              return Container();
             }
+            else if(firstLoad == 0) {
+              firstLoad = 1;
+              prefs!.setInt('appInitialLoad', firstLoad!);
+              return MaterialApp(
+                home: WalkthroughScreen(),
+              );
+            }
+            else {
+              return AuthenticationStatus();
+            }
+          }
           return const LoadingScreen();
         }
     );
@@ -92,6 +111,7 @@ class _AuthenticationStatusState extends State<AuthenticationStatus> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
+
     if (user == null) {
       return WelcomeView();
     }
@@ -136,7 +156,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
           Image(image: AssetImage('assets/logo.png')),
           SizedBox(height: 20,),
           twoSecondsPassed ? CircularProgressIndicator(color: AppColors.primary,):
-              SizedBox(),
+          SizedBox(),
         ],
       ),
     );
@@ -174,25 +194,25 @@ class _ErrorScreenState extends State<ErrorScreen> {
         elevation: 10.0,
       ),
       body: isAndroid ? AlertDialog(
-          title: Text('Error occured'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: [
-                Text(message),
-              ],
-            ),
-          ),
-        ):CupertinoAlertDialog(
-          title: Text('Error occured', style: kBoldLabelStyle),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: [
-                Text(message, style: kLabelStyle),
-              ],
-            ),
+        title: Text('Error occured'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: [
+              Text(message),
+            ],
           ),
         ),
-      );
+      ):CupertinoAlertDialog(
+        title: Text('Error occured', style: kBoldLabelStyle),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: [
+              Text(message, style: kLabelStyle),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

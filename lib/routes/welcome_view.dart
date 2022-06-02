@@ -3,6 +3,8 @@ import 'package:untitled/routes/login_view.dart';
 import 'package:untitled/routes/sign_up_view.dart';
 import 'package:untitled/util/colors.dart';
 
+import '../analytics.dart';
+
 
 class WelcomeView extends StatelessWidget {
   const WelcomeView({Key? key}) : super(key: key);
@@ -52,7 +54,9 @@ class WelcomeView extends StatelessWidget {
                             child: FlatButton(
                               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 80),
                               color: AppColors.primary,
-                              onPressed: (){
+                              onPressed: () async {
+
+                                await AppAnalytics.setScreenName(LoginView.routename);
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => LoginView()));
                               },
                               child: Text("LOGIN",style: TextStyle(color: AppColors.whiteTextColor)),
@@ -64,7 +68,8 @@ class WelcomeView extends StatelessWidget {
                             child: FlatButton(
                               padding: EdgeInsets.symmetric(vertical: 20, horizontal: 75),
                               color: AppColors.primary,
-                              onPressed: (){
+                              onPressed: () async {
+                                await AppAnalytics.setScreenName(SignUp.routeName);
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp()));
                               },
                               child: Text("SIGN UP",style: TextStyle(color: AppColors.whiteTextColor)),

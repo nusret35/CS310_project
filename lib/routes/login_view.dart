@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter/cupertino.dart';
@@ -7,11 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import 'package:untitled/api/auth.dart';
-import 'package:untitled/api/auth.dart';
-import 'package:untitled/model/user.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
+import 'package:untitled/analytics.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -29,22 +27,31 @@ class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
+  bool _isLoading = false;
 
   Future loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     dynamic result = await _auth.signInWithEmailPass(email, password);
+    setState(() {
+      _isLoading = false;
+    });
     if (result is String)
       {
         _showDialog('Login unsuccessful', result);
       }
     else if (result is User)
       {
+        await AppAnalytics.setUserId(result.uid);
+        await AppAnalytics.setScreenName(TabView.routename);
+        await AppAnalytics.logCustomEvent('lgoin_event', <String, dynamic> {'email' : result.email});
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
       }
     else
       {
         _showDialog('Login unsuccessful', result.toString());
       }
-
   }
 
   Future<void> _showDialog(String title, String message) async {
@@ -240,11 +247,25 @@ class _LoginViewState extends State<LoginView> {
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(0,15,0,15),
-                        child: Text('Login',
-                        style: TextStyle(
-                            fontSize: 15.0
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _isLoading ?
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0,8,16,8),
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                            :
+                            SizedBox(),
+                            Text('Login',
+                            style: TextStyle(
+                              fontSize: 15.0
+                              ),
                             ),
-                          ),
+                        ]
+                        ),
                       ),
                     ),
                   ),
@@ -256,8 +277,15 @@ class _LoginViewState extends State<LoginView> {
                     onPressed: () async {
                      dynamic user = await _auth.signInWithGoogle();
                       if (user != null) {
+                        await AppAnalytics.setUserId(_auth.userID!);
+                        await AppAnalytics.setScreenName(TabView.routename);
+                        await AppAnalytics.logCustomEvent('lgoin_with_Google_event', <String, dynamic> {'email' : user.email});
                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
                       }
+                      else
+                        {
+                          print("something is wrong");
+                        }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(Colors.white),

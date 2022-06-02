@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/feed_view.dart';
+import 'package:untitled/routes/notification_view.dart';
 import 'package:untitled/routes/profile_view.dart';
 import 'package:untitled/routes/schedule_view.dart';
 import 'package:untitled/settings/settings_view.dart';
@@ -12,7 +13,7 @@ class TabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 3,
+    return DefaultTabController(length: 4,
         child: Scaffold(
           appBar: AppBar(
             title: Image(
@@ -46,7 +47,7 @@ class TabView extends StatelessWidget {
           bottomNavigationBar: menu(),
           body: TabBarView(
             children: [
-              FeedView(),ScheduleView(),ProfileView()
+              FeedView(),ScheduleView(),NotificationView(),ProfileView()
             ],
           ),
         )
@@ -81,6 +82,10 @@ class TabView extends StatelessWidget {
           Tab(
             text: "Schedule",
             icon: Icon(Icons.calendar_today),
+          ),
+          Tab(
+            text: "Events",
+            icon: Icon(Icons.newspaper),
           ),
           Tab(
             text: "Profile",

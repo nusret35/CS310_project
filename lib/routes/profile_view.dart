@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:untitled/routes/edit_profile_view.dart';
 import 'package:untitled/util/colors.dart';
 
+import '../analytics.dart';
+
 class Profile {
   static const String Name = 'Ali Can';
   static const String Username = 'alican';
@@ -39,7 +41,10 @@ class ProfileView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(130, 0, 0, 0),
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: () async {
+
+                        await AppAnalytics.setScreenName(EditProfileView.routename);
+
                         Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfileView()));
                       },
                       child: const Text(

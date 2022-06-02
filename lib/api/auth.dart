@@ -12,6 +12,10 @@ class AuthService {
     return _auth.authStateChanges().map(_userFromFirebase);
   }
 
+  String? get userID {
+    return _auth.currentUser?.uid;
+  }
+
   Future<dynamic> signInWithEmailPass(String email, String password) async {
     try {
       UserCredential uc = await _auth.signInWithEmailAndPassword(
