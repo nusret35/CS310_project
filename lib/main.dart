@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:untitled/routes/notification_view.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/walkthrough/walkthrough__screen.dart';
 import 'package:untitled/routes/welcome_view.dart';
@@ -16,9 +17,6 @@ import 'package:untitled/util/styles.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MaterialApp(
-    theme: ThemeData(
-      primaryColorLight: Colors.green,
-    ),
     home: MyFirebaseApp()
   ));
 }
@@ -94,7 +92,6 @@ class _AuthenticationStatusState extends State<AuthenticationStatus> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
-
     if (user == null) {
       return WelcomeView();
     }
