@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,20 +12,29 @@ import 'package:provider/provider.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:untitled/util/styles.dart';
+import 'analytics.dart';
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+
   runApp(MaterialApp(
     theme: ThemeData(
       primaryColorLight: Colors.green,
     ),
-    home: MyFirebaseApp()
+    home: MyFirebaseApp(analytics: analytics)
   ));
 }
 
 class MyFirebaseApp extends StatefulWidget {
-  const MyFirebaseApp({Key? key}) : super(key: key);
+  const MyFirebaseApp({Key? key, required this.analytics}) : super(key: key);
+
+  static FirebaseAnalytics analytics = AppAnalytics.analytics;
+
+  //final FirebaseAnalytics analytics;
+
+
 
   @override
   State<MyFirebaseApp> createState() => _MyFirebaseAppState();
@@ -35,6 +45,12 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
   int? firstLoad;
   SharedPreferences? prefs;
   final Future<FirebaseApp> _init = Firebase.initializeApp();
+
+
+
+
+
+
 
   decideRoute() async {
     prefs = await SharedPreferences.getInstance();
