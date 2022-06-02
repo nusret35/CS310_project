@@ -12,6 +12,7 @@ import 'package:untitled/model/user.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
+import 'package:untitled/analytics.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -38,7 +39,11 @@ class _LoginViewState extends State<LoginView> {
       }
     else if (result is User)
       {
+        await AppAnalytics.setUserId(result.uid);
+        await AppAnalytics.setScreenName(TabView.routename);
+        await AppAnalytics.logCustomEvent('lgoin_event', <String, dynamic> {'email' : result.email});
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
+        
       }
     else
       {
@@ -256,6 +261,9 @@ class _LoginViewState extends State<LoginView> {
                     onPressed: () async {
                      dynamic user = await _auth.signInWithGoogle();
                       if (user != null) {
+                        await AppAnalytics.setUserId(user.ID);
+                        await AppAnalytics.setScreenName(TabView.routename);
+                        await AppAnalytics.logCustomEvent('lgoin_with_Google_event', <String, dynamic> {'email' : user.email});
                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
                       }
                     },

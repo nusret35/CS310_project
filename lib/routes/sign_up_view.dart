@@ -11,6 +11,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:untitled/api/auth.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../analytics.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -35,6 +37,9 @@ class _SignUpState extends State<SignUp> {
       }
     else if (result is User)
       {
+        await AppAnalytics.setUserId(result.uid);
+        await AppAnalytics.setScreenName(TabView.routename);
+        await AppAnalytics.logCustomEvent('Sign_Up_event', <String, dynamic> {'email' : result.email});
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
       }
     else

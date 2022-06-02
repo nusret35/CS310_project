@@ -17,24 +17,33 @@ import 'analytics.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-
-
-  runApp(MaterialApp(
-    theme: ThemeData(
-      primaryColorLight: Colors.green,
-    ),
-    home: MyFirebaseApp(analytics: analytics)
-  ));
+  await Firebase.initializeApp();
+  runApp(const MyApp());
 }
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  static FirebaseAnalytics analytics = AppAnalytics.analytics;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        theme: ThemeData(
+          primaryColorLight: Colors.green,
+        ),
+        home: MyFirebaseApp(analytics: analytics)
+    );
+
+
+  }
+}
+
 
 class MyFirebaseApp extends StatefulWidget {
   const MyFirebaseApp({Key? key, required this.analytics}) : super(key: key);
 
-  static FirebaseAnalytics analytics = AppAnalytics.analytics;
-
-  //final FirebaseAnalytics analytics;
-
-
+  final FirebaseAnalytics analytics;
 
   @override
   State<MyFirebaseApp> createState() => _MyFirebaseAppState();
@@ -45,11 +54,6 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
   int? firstLoad;
   SharedPreferences? prefs;
   final Future<FirebaseApp> _init = Firebase.initializeApp();
-
-
-
-
-
 
 
   decideRoute() async {
