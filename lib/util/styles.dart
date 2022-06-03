@@ -35,8 +35,14 @@ final kBoldLabelStyle = GoogleFonts.montserrat(
 final kLabelStyle = GoogleFonts.montserrat(
   fontSize: 14.0,
   color: AppColors.textColor,
-
-
 );
+
+final kAppViewTitleTextStyle = TextStyle(
+    fontSize: 32.0,
+    fontWeight: FontWeight.bold,
+    color: Colors.black
+);
+
+
 
 

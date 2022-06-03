@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/util/colors.dart';
+import 'package:untitled/util/styles.dart';
 
 class NotificationView extends StatefulWidget {
   const NotificationView({Key? key}) : super(key: key);
@@ -18,6 +19,13 @@ class _NotificationViewState extends State<NotificationView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                    'Activity',
+                  style: kAppViewTitleTextStyle,
+                ),
+              ),
               friendRequest('https://dazedimg-dazedgroup.netdna-ssl.com/592/azure/dazed-prod/1060/8/1068776.jpg', 'tyler'),
               friendRequest('https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Cate_Blanchett_Cannes_2018_2_%28cropped_2%29.jpg/640px-Cate_Blanchett_Cannes_2018_2_%28cropped_2%29.jpg', 'cateblanchett'),
               friendRequest('https://i.imgur.com/r1lA6yX.jpg', 'michaelscott'),

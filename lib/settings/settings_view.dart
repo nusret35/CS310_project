@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:untitled/routes/welcome_view.dart';
 import 'package:untitled/util/colors.dart';
-import 'package:untitled/api/auth.dart';
-
+import 'package:untitled/services/auth.dart';
 
 class SettingsView extends StatefulWidget {
   SettingsView({Key? key,required this.title}) : super(key: key);

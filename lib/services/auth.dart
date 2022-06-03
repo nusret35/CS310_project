@@ -34,7 +34,7 @@ class AuthService {
     }
   }
 
-  Future<dynamic> signUpWithEmailPass(String name, String surname, String schoolName, String email, String password) async {
+  Future<dynamic> signUpWithEmailPass(String email, String password) async {
     try {
       UserCredential uc = await _auth.createUserWithEmailAndPassword(
           email: email,

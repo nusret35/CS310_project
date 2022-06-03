@@ -20,16 +20,6 @@ class TabView extends StatelessWidget {
               image: AssetImage('assets/logo.png'),
               width: 200,
             ),
-            leading: GestureDetector (
-              onTap: () => {},
-              child: Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: CircleAvatar(
-                  backgroundColor: AppColors.greenAccent_tab_control,
-                  backgroundImage: NetworkImage('https://i1.rgstatic.net/ii/profile.image/279526891376650-1443655812881_Q512/Baris-Altop.jpg'),
-                ),
-              ),
-            ),
             actions: [
               IconButton(
                 onPressed: (){
@@ -84,7 +74,7 @@ class TabView extends StatelessWidget {
             icon: Icon(Icons.calendar_today),
           ),
           Tab(
-            text: "Events",
+            text: "Activity",
             icon: Icon(Icons.newspaper),
           ),
           Tab(

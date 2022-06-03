@@ -1,15 +1,17 @@
 import 'dart:io' show Platform;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter/services.dart';
-import 'package:untitled/api/auth.dart';
+import 'package:untitled/services/auth.dart';
+import 'package:untitled/services/db.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
-import 'package:untitled/analytics.dart';
+import 'package:untitled/services/analytics.dart';
+import 'package:provider/provider.dart';
 
 
 class LoginView extends StatefulWidget {
@@ -24,6 +26,7 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
 
   AuthService _auth = AuthService();
+
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
@@ -45,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
       {
         await AppAnalytics.setUserId(result.uid);
         await AppAnalytics.setScreenName(TabView.routename);
-        await AppAnalytics.logCustomEvent('lgoin_event', <String, dynamic> {'email' : result.email});
+        await AppAnalytics.logCustomEvent('login_event', <String, dynamic> {'email' : result.email});
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => TabView()));
       }
     else
@@ -101,6 +104,11 @@ class _LoginViewState extends State<LoginView> {
           }
 
         });
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
 
@@ -231,81 +239,71 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
                 SizedBox(height: 20.0,),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      if(_formKey.currentState!.validate()){
-                        _formKey.currentState!.save();
-                        await loginUser();
-                      }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0,15,0,15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            _isLoading ?
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0,8,16,8),
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            )
-                            :
-                            SizedBox(),
-                            Text('Login',
-                            style: TextStyle(
-                              fontSize: 15.0
-                              ),
+                OutlinedButton(
+                  onPressed: () async {
+                    if(_formKey.currentState!.validate()){
+                      _formKey.currentState!.save();
+                      await loginUser();
+                    }
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 150.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _isLoading ?
+                          CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                          :
+                          Text('Login',
+                          style: TextStyle(
+                            fontSize: 15.0
                             ),
-                        ]
-                        ),
+                          ),
+                      ]
                       ),
                     ),
                   ),
                 ),
                 SizedBox(height: 10.0,),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8,0,8,0),
-                  child: OutlinedButton(
-                    onPressed: () async {
-                     dynamic user = await _auth.signInWithGoogle();
-                      if (user != null) {
-                        await AppAnalytics.setUserId(_auth.userID!);
-                        await AppAnalytics.setScreenName(TabView.routename);
-                        await AppAnalytics.logCustomEvent('lgoin_with_Google_event', <String, dynamic> {'email' : user.email});
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
+                OutlinedButton(
+                  onPressed: () async {
+                   dynamic user = await _auth.signInWithGoogle();
+                    if (user != null) {
+                      await AppAnalytics.setUserId(_auth.userID!);
+                      await AppAnalytics.setScreenName(TabView.routename);
+                      await AppAnalytics.logCustomEvent('login_with_Google_event', <String, dynamic> {'email' : user.email});
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
+                    }
+                    else
+                      {
+                        print("something is wrong");
                       }
-                      else
-                        {
-                          print("something is wrong");
-                        }
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0,15,0,15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image(image: AssetImage('assets/google_icon.png'),height: 25, width: 25),
-                            SizedBox(width: 4.0,),
-                            Text('Sign in with Google',
-                            style: TextStyle(
-                                fontSize: 15.0
-                            ),
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0,15,0,15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(image: AssetImage('assets/google_icon.png'),height: 25, width: 25),
+                          SizedBox(width: 4.0,),
+                          Text('Sign in with Google',
+                          style: TextStyle(
+                              fontSize: 15.0
                           ),
-                        ],
                         ),
+                      ],
                       ),
                     ),
                   ),

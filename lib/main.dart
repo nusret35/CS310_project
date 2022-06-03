@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:untitled/util/styles.dart';
-import 'analytics.dart';
+import 'services/analytics.dart';
+import 'services/auth.dart';
 
 
 void main() async{
@@ -90,7 +91,11 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
               );
             }
             else {
-              return AuthenticationStatus();
+              return StreamProvider<User?>.value(
+                value: AuthService().user,
+                initialData: null,
+                child: AuthenticationStatus(),
+              );
             }
           }
           return const LoadingScreen();

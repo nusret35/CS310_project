@@ -8,10 +8,10 @@ import 'package:untitled/util/styles.dart';
 import 'package:untitled/util/dimensions.dart';
 import 'package:untitled/util/screen_size.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:untitled/api/auth.dart';
+import 'package:untitled/services/auth.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../analytics.dart';
+import 'package:untitled/services/db.dart';
+import '../services/analytics.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -22,21 +22,34 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   AuthService _auth = AuthService();
+  DBService _db = DBService(uid: '');
+
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String password = '';
   String name = '';
   String surname = '';
+  String username = '';
   String schoolName = '';
+  String major = '';
+  String term = 'Prep';
+
+  String capitalize(String word)
+  {
+    if (word.contains(' '))
+      return '${word[0].toUpperCase()}${word.substring(1,word.indexOf(' ')).toLowerCase()} ${word[word.indexOf(' ')+1].toUpperCase()}${word.substring(word.indexOf(' ')+2).toLowerCase()}';
+    return '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}';
+  }
 
   Future signUpUser() async {
-    dynamic result = await _auth.signUpWithEmailPass(name, surname, schoolName, email, password);
+    dynamic result = await _auth.signUpWithEmailPass(email, password);
     if (result is String)
       {
         _showDialog('Sign up unsuccesful', result);
       }
     else if (result is User)
       {
+        await _db.createUser('${capitalize(name)} ${capitalize(surname)}', username,capitalize(schoolName), capitalize(major), term, email, _auth.userID!);
         await AppAnalytics.setUserId(result.uid);
         await AppAnalytics.setScreenName(TabView.routename);
         await AppAnalytics.logCustomEvent('Sign_Up_event', <String, dynamic> {'email' : result.email});
@@ -96,6 +109,13 @@ class _SignUpState extends State<SignUp> {
 
         });
   }
+
+  @override
+  void initState() {
+    _db = DBService(uid: _auth.userID!);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -175,6 +195,34 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   Container(
+                    padding: EdgeInsets.all(8.0),
+                    width: screenWidth(context, dividedBy: 1.1),
+                    child: TextFormField(
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        label: Container(
+                          width: 150,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 4),
+                              const Text('Username'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if(value != null){
+                          if(value.isEmpty) {
+                            return 'Cannot leave username empty';
+                          }
+                        }
+                      },
+                      onSaved: (value) {
+                        username = value ?? '';
+                      },
+                    ),
+                  ),
+                  Container(
                     padding: EdgeInsets.all(8),
                     width: screenWidth(context, dividedBy: 1.1),
                     child: TextFormField(
@@ -201,6 +249,63 @@ class _SignUpState extends State<SignUp> {
                       onSaved: (value) {
                         schoolName = value ?? '';
                       },
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(8.0),
+                    width: screenWidth(context, dividedBy: 1.1),
+                    child: TextFormField(
+                      keyboardType: TextInputType.name,
+                      decoration: InputDecoration(
+                        label: Container(
+                          width: 150,
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 4),
+                              const Text('Major'),
+                            ],
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if(value != null){
+                          if(value.isEmpty) {
+                            return 'Cannot leave major empty';
+                          }
+                        }
+                      },
+                      onSaved: (value) {
+                        major = value ?? '';
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    child:
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Term',
+                          style: TextStyle(
+                            fontSize: 17.0,
+                          ),
+                        ),
+                        DropdownButton(
+                        hint: Text(term),
+                        items: <String>['Prep', 'Freshman', 'Sophomore', 'Junior', 'Senior'].map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                          }).toList(),
+                          onChanged: (selected) {
+                            setState(() {
+                              term = selected.toString();
+                           });
+                         },
+                        ),
+                      ],
                     ),
                   ),
                   Container(

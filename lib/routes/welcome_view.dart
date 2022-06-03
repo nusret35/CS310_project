@@ -3,7 +3,7 @@ import 'package:untitled/routes/login_view.dart';
 import 'package:untitled/routes/sign_up_view.dart';
 import 'package:untitled/util/colors.dart';
 
-import '../analytics.dart';
+import '../services/analytics.dart';
 
 
 class WelcomeView extends StatelessWidget {

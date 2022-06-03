@@ -6,12 +6,15 @@ part 'user.freezed.dart';
 @Freezed()
 class AppUser with _$AppUser {
   const factory AppUser({
+    required String fullname,
+    required String username,
+    required String schoolName,
     required String email,
-    required String password,
-    required String name,
-    required String surname,
-}) = _AppUser;
+    required String major,
+    required String term,
+  }) = _AppUser;
 
-  factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
+  factory AppUser.fromJson(Map<String, dynamic> json) =>
+      _$AppUserFromJson(json);
 
 }
