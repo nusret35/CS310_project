@@ -53,7 +53,6 @@ class _EditProfileViewState extends State<EditProfileView>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   'Name and Surname',
                   style: TextStyle(

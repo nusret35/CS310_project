@@ -1,21 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/util/styles.dart';
 import 'package:untitled/model/user.dart';
 import 'package:untitled/routes/edit_profile_view.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/util/colors.dart';
-
 import '../services/analytics.dart';
-
-class Profile {
-  static const String Name = 'Ali Can';
-  static const String Username = 'alican';
-  static const String University = 'Sabanci University';
-  static const String Major = 'Computer Science';
-  static const String Term = 'Sophomore';
-}
-
 
 
 class ProfileView extends StatefulWidget {
@@ -32,6 +24,54 @@ class _ProfileViewState extends State<ProfileView> {
   DBService _db = DBService(uid: '');
 
   final AppUser currentUser = AppUser(fullname: 'loading', username: 'loading', schoolName: 'loading', email: 'loading', major: 'loading', term: 'loading');
+
+  Future<void> _showDialog(String title, String message) async {
+    bool isAndroid = Platform.isAndroid;
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          if(isAndroid) {
+            return AlertDialog(
+              title: Text(title),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    Text(message),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          } else {
+            return CupertinoAlertDialog(
+              title: Text(title, style: kBoldLabelStyle),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: [
+                    Text(message, style: kLabelStyle),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          }
+        });
+  }
 
 
   @override
@@ -61,51 +101,21 @@ class _ProfileViewState extends State<ProfileView> {
                             color: AppColors.textColor,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(130, 0, 0, 0),
-                          child: TextButton(
-                            onPressed: () async {
-                              await AppAnalytics.setScreenName(
-                                  EditProfileView.routename);
+                        Spacer(),
+                        IconButton(
+                          onPressed: () async {
+                            await AppAnalytics.setScreenName(
+                                EditProfileView.routename);
 
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => EditProfileView()));
-                            },
-                            child: const Text(
-                              'Edit',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontFamily: 'Arial',
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.colorRed,
-                              ),
-                            ),
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => EditProfileView()));
+                          },
+                          icon: Icon(
+                              Icons.edit,
+                              color: AppColors.primary,
                           ),
                         )
                       ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
-                      child: Center(
-                        child: SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.4,
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.4,
-                          child: CircleAvatar(
-                            backgroundColor: AppColors.primary,
-                            radius: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.4,
-                            backgroundImage: NetworkImage('https://i1.rgstatic.net/ii/profile.image/279526891376650-1443655812881_Q512/Baris-Altop.jpg'),
-                          ),
-                        ),
-                      ),
                     ),
                     FutureBuilder(
                         future: _db.getCurrentUser(),
@@ -114,9 +124,33 @@ class _ProfileViewState extends State<ProfileView> {
                           if (snapshot.connectionState == ConnectionState.done && snapshot.hasData == true)
                             {
                               Map<String,dynamic> data = snapshot.data.data() as Map<String, dynamic>;
+                              String? photoURL = data['photoURL'] as String?;
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width * 0.4,
+                                        height: MediaQuery
+                                            .of(context)
+                                            .size
+                                            .width * 0.4,
+                                        child: CircleAvatar(
+                                          backgroundColor: AppColors.primary,
+                                          radius: MediaQuery
+                                              .of(context)
+                                              .size
+                                              .width * 0.4,
+                                          backgroundImage: NetworkImage(data['photoURL'] ?? 'https://i1.rgstatic.net/ii/profile.image/279526891376650-1443655812881_Q512/Baris-Altop.jpg'),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 Padding(padding: const EdgeInsets.fromLTRB(0, 40, 0, 0)),
                                 Text(
                                   'Name and Surname',
@@ -128,7 +162,7 @@ class _ProfileViewState extends State<ProfileView> {
                                   ),
                                 ),
                                   Text(
-                                    data["fullname"] ?? 'fullname not found',
+                                    data['fullname'] ?? 'fullname not found',
                                     style: TextStyle(
                                       fontSize: 14.0,
                                       fontFamily: 'Arial',
@@ -210,12 +244,15 @@ class _ProfileViewState extends State<ProfileView> {
                               ],
                               );
                             }
-                          else if (!snapshot.hasData)
+                          else if (snapshot.hasError)
                             {
-                              print("no data");
+                              _showDialog(
+                                  'Error occured',
+                                  snapshot.error.toString()
+                              );
                             }
                           return Center(child:
-                          Column(
+                            Column(
                             children: [
                               SizedBox(height: 50.0,),
                               CircularProgressIndicator(

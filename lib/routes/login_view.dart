@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:untitled/routes/google_login_finish_view.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/util/styles.dart';
@@ -276,10 +277,27 @@ class _LoginViewState extends State<LoginView> {
                   onPressed: () async {
                    dynamic user = await _auth.signInWithGoogle();
                     if (user != null) {
-                      await AppAnalytics.setUserId(_auth.userID!);
-                      await AppAnalytics.setScreenName(TabView.routename);
-                      await AppAnalytics.logCustomEvent('login_with_Google_event', <String, dynamic> {'email' : user.email});
-                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TabView()), (route) => false);
+                      UserMetadata userMetadata = UserMetadata(0,0);
+                      if(userMetadata.creationTime == userMetadata.lastSignInTime)
+                        {
+                          User googleUser = FirebaseAuth.instance.currentUser!;
+                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => GoogleLoginFinishView(
+                                                                                            googleUser.displayName!,
+                                                                                            googleUser.email!,
+                                                                                            googleUser.photoURL ?? 'no-profile-photo')
+                          ), (route) => false);
+                        }
+                      else {
+                          await AppAnalytics.setUserId(_auth.userID!);
+                          await AppAnalytics.setScreenName(TabView.routename);
+                          await AppAnalytics.logCustomEvent(
+                              'login_with_Google_event', <String, dynamic>{
+                            'email': user.email
+                          });
+                          Navigator.pushAndRemoveUntil(
+                              context, MaterialPageRoute(builder: (context) =>
+                              TabView()), (route) => false);
+                      }
                     }
                     else
                       {

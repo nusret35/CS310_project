@@ -15,15 +15,30 @@ class DBService {
     required this.uid
   });
 
-  Future createUser(String fullname, String schoolName, String username, String major, String term, String email, String uid) async {
+  Future createUser(String fullname, String schoolName, String username, String major, String term, String email) async {
     userCollection.doc(uid).set({
       'fullname': fullname,
+      'username':username,
       'schoolName': schoolName,
       'major': major,
       'term': term,
       'email': email,
     })
     .then((value) => print('User added'))
+        .catchError((error) => print('Error: ${error.toString()}'));
+  }
+
+  Future createUserWithGoogle(String fullname, String schoolName, String username, String major, String term, String email, String photoURL) async {
+    userCollection.doc(uid).set({
+      'fullname': fullname,
+      'username': username,
+      'schoolName': schoolName,
+      'major': major,
+      'term': term,
+      'email': email,
+      'photoURL': photoURL
+    })
+        .then((value) => print('User added'))
         .catchError((error) => print('Error: ${error.toString()}'));
   }
 

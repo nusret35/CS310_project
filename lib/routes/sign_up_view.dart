@@ -22,7 +22,6 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   AuthService _auth = AuthService();
-  DBService _db = DBService(uid: '');
 
   final _formKey = GlobalKey<FormState>();
   String email = '';
@@ -49,7 +48,8 @@ class _SignUpState extends State<SignUp> {
       }
     else if (result is User)
       {
-        await _db.createUser('${capitalize(name)} ${capitalize(surname)}', username,capitalize(schoolName), capitalize(major), term, email, _auth.userID!);
+        DBService db = DBService(uid:_auth.userID!);
+        await db.createUser('${capitalize(name)} ${capitalize(surname)}', username,capitalize(schoolName), capitalize(major), term, email);
         await AppAnalytics.setUserId(result.uid);
         await AppAnalytics.setScreenName(TabView.routename);
         await AppAnalytics.logCustomEvent('Sign_Up_event', <String, dynamic> {'email' : result.email});
@@ -112,7 +112,6 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void initState() {
-    _db = DBService(uid: _auth.userID!);
     super.initState();
   }
 
