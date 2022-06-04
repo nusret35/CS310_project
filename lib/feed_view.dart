@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/util/objects.dart';
+import 'package:untitled/services/crashlytics.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({Key? key}) : super(key: key);

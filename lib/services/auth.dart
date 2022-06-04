@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:untitled/services/crashlytics.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -29,7 +30,8 @@ class AuthService {
       } else if (e.code == 'wrong-password') {
         return e.message ?? 'Password is not correct';
       }
-    } catch (e) {
+    } catch (e,s) {
+      CrashService.recordError(e, s, e.toString(), true);
       return e.toString();
     }
   }
@@ -47,6 +49,9 @@ class AuthService {
       } else if (e.code == 'weak-password') {
         return e.message ?? 'Your password is weak';
       }
+    } catch (e,s) {
+      CrashService.recordError(e, s, e.toString(), true);
+      return e.toString();
     }
   }
 

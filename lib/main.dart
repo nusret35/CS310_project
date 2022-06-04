@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,6 +20,15 @@ import 'services/auth.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  /*  comment this out when started to use release
+  if (kDebugMode) {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  }
+  */
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
   runApp(const MyApp());
 }
 
@@ -54,6 +64,7 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
   final Future<FirebaseApp> _init = Firebase.initializeApp();
 
 
+
   decideRoute() async {
     prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -64,8 +75,9 @@ class _MyFirebaseAppState extends State<MyFirebaseApp> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
+
     decideRoute();
+    super.initState();
   }
 
 

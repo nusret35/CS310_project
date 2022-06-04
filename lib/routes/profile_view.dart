@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:untitled/services/crashlytics.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/model/user.dart';
 import 'package:untitled/routes/edit_profile_view.dart';
@@ -244,12 +245,21 @@ class _ProfileViewState extends State<ProfileView> {
                               ],
                               );
                             }
+                          else if (snapshot.connectionState == ConnectionState.none)
+                            {
+                              _showDialog(
+                                  'Lost connection to service',
+                                  'Please reconnect to your service'
+                              );
+                            }
                           else if (snapshot.hasError)
                             {
+                              CrashService.recordError(snapshot.error, snapshot.stackTrace, snapshot.error.toString(), false);
                               _showDialog(
                                   'Error occured',
                                   snapshot.error.toString()
                               );
+
                             }
                           return Center(child:
                             Column(
