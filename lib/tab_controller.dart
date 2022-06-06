@@ -5,6 +5,7 @@ import 'package:untitled/routes/profile_view.dart';
 import 'package:untitled/routes/schedule_view.dart';
 import 'package:untitled/settings/settings_view.dart';
 import 'package:untitled/util/colors.dart';
+import 'package:untitled/routes/search_view.dart';
 
 class TabView extends StatelessWidget {
   const TabView({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class TabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(length: 4,
+    return DefaultTabController(length: 5,
         child: Scaffold(
           appBar: AppBar(
             title: Image(
@@ -37,7 +38,7 @@ class TabView extends StatelessWidget {
           bottomNavigationBar: menu(),
           body: TabBarView(
             children: [
-              FeedView(),ScheduleView(),NotificationView(),ProfileView()
+              FeedView(),SearchView(),ScheduleView(),NotificationView(),ProfileView()
             ],
           ),
         )
@@ -68,6 +69,10 @@ class TabView extends StatelessWidget {
           Tab(
             text: "Home",
             icon: Icon(Icons.home),
+          ),
+          Tab(
+            text: 'Search',
+            icon: Icon(Icons.search),
           ),
           Tab(
             text: "Schedule",

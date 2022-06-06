@@ -1,35 +1,35 @@
 
 import 'package:flutter/material.dart';
+import 'package:untitled/services/auth.dart';
+import 'package:untitled/services/crashlytics.dart';
+import 'package:untitled/services/db.dart';
+import 'package:untitled/util/colors.dart';
 
 
-class SearchViewPage extends StatefulWidget {
-  const SearchViewPage({Key? key}) : super(key: key);
+class SearchView extends StatefulWidget {
+  const SearchView({Key? key}) : super(key: key);
 
   @override
-  State<SearchViewPage> createState() => _SearchViewPageState();
+  State<SearchView> createState() => _SearchViewState();
 }
 
-class _SearchViewPageState extends State<SearchViewPage> {
+class _SearchViewState extends State<SearchView> {
 
-  final List<Map<String, dynamic>> _allUsers = [
-    {"id": 1, "name": "Andy", "age": 29},
-    {"id": 2, "name": "Aragon", "age": 40},
-    {"id": 3, "name": "Bob", "age": 5},
-    {"id": 4, "name": "Barbara", "age": 35},
-    {"id": 5, "name": "Candy", "age": 21},
-    {"id": 6, "name": "Colin", "age": 55},
-    {"id": 7, "name": "Audra", "age": 30},
-    {"id": 8, "name": "Banana", "age": 14},
-    {"id": 9, "name": "Caversky", "age": 100},
-    {"id": 10, "name": "Becky", "age": 32},
+  AuthService _auth = AuthService();
+  DBService _db = DBService(uid: '');
+
+  List<Map<String, dynamic>> _allUsers = [
   ];
 
   List<Map<String, dynamic>> _foundUsers = [];
+
+  bool keyEntered = false;
 
 
   @override
   void initState() {
     // TODO: implement initState
+    DBService _db = DBService(uid: _auth.userID!);
     _foundUsers = _allUsers;
     super.initState();
   }
@@ -38,76 +38,159 @@ class _SearchViewPageState extends State<SearchViewPage> {
     List<Map<String, dynamic>> results = [];
 
     if(enterdKeyboard.isEmpty) {
-      results = _allUsers;
+
+      setState(() {
+        keyEntered = false;
+      });
+      results = [];
     } else {
+      setState(() {
+        keyEntered = true;
+      });
       results = _allUsers.where((user) =>
-          user["name"].toString().toLowerCase().contains(enterdKeyboard.toLowerCase())).toList();
-
-
+          user["username"].toString().toLowerCase().contains(enterdKeyboard.toLowerCase())).toList();
     }
 
     setState(() {
       _foundUsers = results;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('UniForm'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 20,
-            ),
-            TextField(
-              onChanged: (value) => _runFilter(value),
-              decoration: const InputDecoration(
-                labelText: 'Search', suffixIcon: Icon(Icons.search)),
-
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child:
+                TextField(
+                  onChanged: (value) => _runFilter(value),
+                  decoration: const InputDecoration(
+                    labelText: 'Search',suffixIcon: Icon(
+                    Icons.search,
+                  ),
+                    )
+                  ),
+                ),
+              StreamBuilder(
+                stream: _db.searchResults,
+                builder: (BuildContext context, snaphot) {
+                  if(snaphot.hasData) {
+                    _allUsers = snaphot.data as List<Map<String, dynamic>>;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: _foundUsers.isNotEmpty
+                          ? _foundUsers.map((user) =>
+                          SearchResultTile
+                            (
+                            user["photoURL"],
+                            user["username"],
+                            user["fullname"],
+                          )
+                      ).toList()
+                          :
+                          keyEntered ?
+                        [
+                          SizedBox(height:70),
+                          Center(
+                            child: const Text('No results found',
+                              style: TextStyle(fontSize: 24),
+                            ),
+                          )
+                        ]
+                      :
+                        [
+                          SizedBox(height:70),
+                          Center(
+                            child: const Text('Search for users',
+                              style: TextStyle(fontSize: 20, color: Colors.grey),
+                            ),
+                          )
+                        ]
+                      ,
+                    );
+                  }
+                  else if (snaphot.hasError) {
+                    print("something went wrong");
+                    CrashService.recordError(snaphot.error, snaphot.stackTrace, snaphot.error.toString(), false);
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Center(
+                            child:
+                            CircularProgressIndicator(
+                              color: AppColors.primary,
+                            )
+                        ),
+                  );
+                }
               ),
 
-            const SizedBox(
-              height: 20,
-            ),
-
-            Expanded(
-                child: _foundUsers.isNotEmpty
-                    ? ListView.builder(
-                    itemCount: _foundUsers.length,
-                  itemBuilder: (context, index) => Card(
-                    key: ValueKey(_foundUsers[index]["id"]),
-                    color: Colors.amberAccent,
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: ListTile(
-                      leading: Text(
-                        _foundUsers[index]["id"].toString(),
-                        style: const TextStyle(fontSize: 24),
-
-                      ),
-                      title: Text(_foundUsers[index]['name']),
-                      subtitle: Text('${_foundUsers[index]["age"].toString()} years old'
-                      ),
-
-                    ),
-                  ),
-
-
-                )
-                    : const Text('No results found',
-                  style: TextStyle(fontSize: 24),
-                )
-            ),
-
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget SearchResultTile(String profilePictureUrl,String username, String fullname)
+  {
+    return Container(
+      color: Colors.white,
+      child: Column(
+          children: [
+            SizedBox(height: 10.0,),
+            Row(
+              children: [
+                SizedBox(width: 10.0,),
+                CircleAvatar(backgroundImage:NetworkImage(profilePictureUrl)),
+                SizedBox(width: 15.0,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${username}',
+                      style: TextStyle(
+                          color: Colors.black
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '${fullname}',
+                      style: TextStyle(
+                          color: Colors.grey
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ]
+                ),
+              ],
+            ),
+            SizedBox(height: 10.0,),
+            Divider(thickness: 1.0,)
+          ]
+      ),
+    );
+  }
+
+}
+
+class SearchUserResult {
+  final String fullname;
+  final String username;
+  final String photoURL;
+
+  SearchUserResult({
+    required this.fullname,
+    required this.username,
+    required this.photoURL
+  });
 }
 

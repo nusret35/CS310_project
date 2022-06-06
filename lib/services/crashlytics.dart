@@ -12,6 +12,4 @@ class CrashService{
     await crashlytics.recordError(e, stackTrace, reason: reason, fatal: fatal );
   }
 
-
-
 }

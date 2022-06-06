@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:untitled/model/user.dart';
+import 'package:untitled/routes/search_view.dart';
 
 class DBService {
   final String uid;
@@ -55,12 +56,27 @@ class DBService {
     }).toList();
   }
 
+  List<Map<String, dynamic>> _searchUserResultListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return
+      {
+        "fullname": doc.get("fullname"),
+        "username": doc.get("username"),
+        "photoURL": doc.get("photoURL"),
+    };
+    }).toList();
+  }
+
   Future<DocumentSnapshot> getCurrentUser() async {
     return await userCollection.doc(uid).get();
 }
 
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
+  }
+
+  Stream<List<Map<String, dynamic>>> get searchResults {
+    return userCollection.snapshots().map(_searchUserResultListFromSnapshot);
   }
 
 
