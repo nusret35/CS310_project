@@ -15,8 +15,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:untitled/util/styles.dart';
 import 'services/analytics.dart';
 import 'services/auth.dart';
+import 'package:untitled/routes/search_view.dart';
+
+void main() {
+  runApp(const MyApp());
+
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "Uniform",
+      home: SearchViewPage(),
+    );
+  }
+}
 
 
+
+/*
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -236,7 +257,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
 
 
 
-
+*/
 
 
 
