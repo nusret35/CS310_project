@@ -81,9 +81,9 @@ class _SearchViewState extends State<SearchView> {
                 ),
               StreamBuilder(
                 stream: _db.searchResults,
-                builder: (BuildContext context, snaphot) {
-                  if(snaphot.hasData) {
-                    _allUsers = snaphot.data as List<Map<String, dynamic>>;
+                builder: (BuildContext context, snapshot) {
+                  if(snapshot.hasData) {
+                    _allUsers = snapshot.data as List<Map<String, dynamic>>;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: _foundUsers.isNotEmpty
@@ -117,9 +117,10 @@ class _SearchViewState extends State<SearchView> {
                       ,
                     );
                   }
-                  else if (snaphot.hasError) {
+                  else if (snapshot.hasError) {
                     print("something went wrong");
-                    CrashService.recordError(snaphot.error, snaphot.stackTrace, snaphot.error.toString(), false);
+                    print(snapshot.error.toString());
+                    CrashService.recordError(snapshot.error, snapshot.stackTrace, snapshot.error.toString(), false);
                   }
                   return Padding(
                     padding: const EdgeInsets.all(20.0),

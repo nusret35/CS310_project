@@ -73,8 +73,23 @@ class AuthService {
     return _userFromFirebase(uc.user);
   }
 
+  Future<void> deleteAccount() async {
+    User? currentUser = user as User;
+    try
+    {
+      await currentUser.delete();
+    }
+    catch(e,s) {
+      CrashService.recordError(e, s, e.toString(), false);
+    }
+  }
+
+  Future<void> changePassword() async {
+
+  }
+
   Future<void> signOut() async {
-      await _auth.signOut();
+    await _auth.signOut();
   }
 
 

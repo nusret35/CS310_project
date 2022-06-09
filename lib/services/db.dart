@@ -24,6 +24,7 @@ class DBService {
       'major': major,
       'term': term,
       'email': email,
+      'photoURL': 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg'
     })
     .then((value) => print('User added'))
         .catchError((error) => print('Error: ${error.toString()}'));
