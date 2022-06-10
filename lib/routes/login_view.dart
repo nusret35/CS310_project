@@ -275,10 +275,11 @@ class _LoginViewState extends State<LoginView> {
                 SizedBox(height: 10.0,),
                 OutlinedButton(
                   onPressed: () async {
-                   dynamic user = await _auth.signInWithGoogle();
+                   User? user = await _auth.signInWithGoogle();
                     if (user != null) {
-                      UserMetadata userMetadata = UserMetadata(0,0);
-                      if(userMetadata.creationTime == userMetadata.lastSignInTime)
+                      print(user.metadata.creationTime.toString());
+                      print(user.metadata.lastSignInTime.toString());
+                      if(user.metadata.lastSignInTime == user.metadata.creationTime)
                         {
                           User googleUser = FirebaseAuth.instance.currentUser!;
                           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => GoogleLoginFinishView(

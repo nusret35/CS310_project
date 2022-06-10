@@ -72,6 +72,10 @@ class DBService {
     return await userCollection.doc(uid).get();
 }
 
+  Future<void> deleteAccount() async {
+    await userCollection.doc(uid).delete();
+  }
+
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
   }

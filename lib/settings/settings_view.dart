@@ -6,6 +6,7 @@ import 'package:untitled/util/colors.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:email_validator/email_validator.dart';
 
 class SettingsView extends StatefulWidget {
   SettingsView({Key? key,required this.title}) : super(key: key);
@@ -17,6 +18,9 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   bool isSwitched = false;
   AuthService _auth = AuthService();
+  final _formKey = GlobalKey<FormState>();
+  String email = '';
+  String password = '';
 
   Future signOutUser() async {
     await _auth.signOut();
@@ -26,10 +30,20 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future deleteAccount() async {
-    await _auth.deleteAccount();
-    Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) => WelcomeView())
-    );
+    Navigator.of(context).pop();
+    final bool emailCheck = await _auth.isSignedInWithEmail();
+    if (await emailCheck == true)
+      {
+        print("signed in with email");
+        await _showUserAuthenticateDialog();
+      }
+    else
+      {
+        await _auth.deleteGoogleAccount();
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => WelcomeView()));
+      }
+
   }
 
   Future<void> _showDialog(String title, String message, VoidCallback function) async {
@@ -81,7 +95,7 @@ class _SettingsViewState extends State<SettingsView> {
                     style: TextStyle(color: Colors.red),
                   ),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    function;
                   },
                 ),
                 TextButton(
@@ -90,6 +104,253 @@ class _SettingsViewState extends State<SettingsView> {
                     Navigator.of(context).pop();
                   },
                 )
+              ],
+            );
+          }
+        });
+  }
+
+  Future<void> _showUserAuthenticateDialog() async {
+    bool isAndroid = Platform.isAndroid;
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          if(isAndroid) {
+            return AlertDialog(
+              title: Text('Authenticate your account'),
+              content: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.fromLTRB(0,0,0,20),
+                          child: TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value){
+                              if (value != null){
+                                if (EmailValidator.validate(value) == false)
+                                {
+                                  return 'Please enter a valid email';
+                                }
+                              }
+                              else
+                              {
+                                return 'Please enter your email address';
+                              }
+                            },
+                            onSaved: (value) {
+                              email = value ?? '';
+                            },
+                            decoration: InputDecoration(
+                              label: Container(
+                                width: 100,
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.email),
+                                    const SizedBox(width: 4,),
+                                    const Text('Email'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(0,20,0,20),
+                          child: TextFormField(
+                            keyboardType: TextInputType.text,
+                            obscureText: true,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            decoration: InputDecoration(
+                                label: Container(
+                                  width: 100,
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.password),
+                                      const SizedBox(width: 4),
+                                      const Text('Password'),
+                                    ],
+                                  ),
+
+                                )
+                            ),
+                            validator: (value){
+                              if (value != null)
+                              {
+                                if (value.length <= 6)
+                                {
+                                  return 'Please enter a valid password';
+                                }
+                              }
+                              else {
+                                return 'Please enter your password';
+                              }
+                            },
+                            onSaved: (value) {
+                              password = value ?? '';
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                OutlinedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: Text(
+                    'Login ',
+                  ),
+                  onPressed: () {
+                    if(_formKey.currentState!.validate()){
+                      _formKey.currentState!.save();
+                      _auth.deleteEmailAccount(email, password);
+                      Navigator.pushReplacement(context, MaterialPageRoute(
+                          builder: (context) => WelcomeView()));
+                    }
+                  },
+                ),
+                SizedBox(width: 5.0,),
+                OutlinedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.blueAccent),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: Text(
+                    'Cancel',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          } else {
+            return CupertinoAlertDialog(
+              title: Text('Authenticate your account'),
+              content: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.fromLTRB(0,0,0,20),
+                          child: TextFormField(
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value){
+                              if (value != null){
+                                if (EmailValidator.validate(value) == false)
+                                {
+                                  return 'Please enter a valid email';
+                                }
+                              }
+                              else
+                              {
+                                return 'Please enter your email address';
+                              }
+                            },
+                            onSaved: (value) {
+                              email = value ?? '';
+                            },
+                            decoration: InputDecoration(
+                              label: Container(
+                                width: 100,
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.email),
+                                    const SizedBox(width: 4,),
+                                    const Text('Email'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(0,20,0,20),
+                          child: TextFormField(
+                            keyboardType: TextInputType.text,
+                            obscureText: true,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            decoration: InputDecoration(
+                                label: Container(
+                                  width: 100,
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.password),
+                                      const SizedBox(width: 4),
+                                      const Text('Password'),
+                                    ],
+                                  ),
+
+                                )
+                            ),
+                            validator: (value){
+                              if (value != null)
+                              {
+                                if (value.length <= 6)
+                                {
+                                  return 'Please enter a valid password';
+                                }
+                              }
+                              else {
+                                return 'Please enter your password';
+                              }
+                            },
+                            onSaved: (value) {
+                              password = value ?? '';
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                OutlinedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: Text(
+                    'Login ',
+                  ),
+                  onPressed: () {
+                    if(_formKey.currentState!.validate()){
+                      _formKey.currentState!.save();
+                      _auth.deleteEmailAccount(email, password);
+                      Navigator.pushReplacement(context, MaterialPageRoute(
+                          builder: (context) => WelcomeView()));
+                    }
+                  },
+                ),
+                SizedBox(width: 5.0,),
+                OutlinedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.blueAccent),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                  ),
+                  child: Text(
+                    'Cancel',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ],
             );
           }
