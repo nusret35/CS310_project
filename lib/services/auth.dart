@@ -78,6 +78,15 @@ class AuthService {
     return _userFromFirebase(uc.user);
   }
 
+  Future<bool> isEmailHasAccount(String email) async {
+    dynamic emailCheck = await _auth.fetchSignInMethodsForEmail(email);
+    if (emailCheck != null)
+      {
+        return true;
+      }
+    return false;
+  }
+
   Future<bool> isSignedInWithEmail() async {
     final bool isEmail = (await _auth.currentUser!.providerData[0].providerId == 'password');
     return isEmail;
@@ -120,8 +129,8 @@ class AuthService {
     }
   }
 
-  Future<void> changePassword() async {
-
+  Future<void> resetPassword(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
   }
 
   Future<void> signOut() async {

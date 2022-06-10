@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:untitled/routes/google_login_finish_view.dart';
+import 'package:untitled/routes/reset_password_view.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/util/styles.dart';
@@ -229,7 +230,9 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 SizedBox(height: 20.0,),
                 TextButton(
-                  onPressed: (){},
+                  onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ResetPasswordView()));
+                  },
                   child: Text(
                     'Forgot password?',
                     style: TextStyle(
