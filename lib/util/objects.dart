@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:untitled/util/colors.dart';
 
 class FormPost {
-  final String topic;
-  final String description;
+  final String title;
+  final String content;
   final String time;
   int likes;
   int comments;
   final String profilePictureURL;
   bool postFavorited = false;
+  final String? mediaURL;
 
-  FormPost(this.topic,
-      this.description,this.time,this.likes,this.comments,this.profilePictureURL);
+  FormPost({
+  required this.title,
+  required this.content,
+  required this.time,
+  required this.likes,
+  required this.comments,
+  required this.profilePictureURL,
+  this.mediaURL});
 }
 
 class PostCard extends StatelessWidget {
@@ -42,33 +49,43 @@ class PostCard extends StatelessWidget {
                     children:[
                       CircleAvatar(backgroundColor: AppColors.colorRed,backgroundImage: NetworkImage(post.profilePictureURL),),
                       const SizedBox(width: 10.0,),
-                      Text(
-                        post.topic,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
+                      Flexible(
+                        child: Text(
+                          post.title,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            overflow: TextOverflow.ellipsis
+                          ),
                         ),
                       ),
-                      const Spacer(),
-                      Text(
-                        post.time,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          post.time,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
                       ),
                     ]
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(post.description,
+                  child: Text(post.content,
                     style: TextStyle(
                       fontSize: 17.0,
                       color: AppColors.textColor,
                     ),
                   ),
                 ),
-
+                Container(
+                child: (post.mediaURL != '') ?
+                    Image(image:NetworkImage(post.mediaURL!))
+                :
+                    SizedBox()
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

@@ -119,7 +119,7 @@ class _ProfileViewState extends State<ProfileView> {
                       ],
                     ),
                     FutureBuilder(
-                        future: _db.getCurrentUser(),
+                        future: _db.getCurrentUserSnapshot(),
                         builder:
                         (BuildContext context, AsyncSnapshot snapshot) {
                           if (snapshot.connectionState == ConnectionState.done && snapshot.hasData == true)

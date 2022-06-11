@@ -79,12 +79,12 @@ class AuthService {
   }
 
   Future<bool> isEmailHasAccount(String email) async {
-    dynamic emailCheck = await _auth.fetchSignInMethodsForEmail(email);
-    if (emailCheck != null)
-      {
-        return true;
-      }
-    return false;
+    await _auth.fetchSignInMethodsForEmail(email).catchError((e) {
+
+      return false;
+    }
+    );
+    return true;
   }
 
   Future<bool> isSignedInWithEmail() async {

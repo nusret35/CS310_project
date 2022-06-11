@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/routes/add_post_view.dart';
+import 'package:untitled/services/db.dart';
+import 'package:untitled/services/storage.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/util/objects.dart';
 import 'package:untitled/services/crashlytics.dart';
+import 'package:untitled/services/storage.dart';
+import 'package:untitled/services/auth.dart';
+import 'package:untitled/util/post.dart';
+import 'package:intl/intl.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({Key? key}) : super(key: key);
@@ -12,6 +19,71 @@ class FeedView extends StatefulWidget {
 }
 
 class _FeedViewState extends State<FeedView> {
+
+  AuthService _auth = AuthService();
+
+  String readTimestamp(int timestamp) {
+    var now = DateTime.now();
+    var format = DateFormat('HH:mm a');
+    var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    var diff = now.difference(date);
+    var time = '';
+
+    if (diff.inSeconds >= 0 && diff.inSeconds < 60){
+      time = diff.inSeconds.toString() + ' second ago';
+    } else if (diff.inMinutes > 0 && diff.inMinutes < 60){
+        if (diff.inMinutes.toInt() == 1) {
+          time = '1 minute ago';
+        }
+        else {
+          time = diff.inMinutes.toString() + ' minutes ago';
+        }
+    } else if (diff.inHours > 0 && diff.inHours < 24) {
+      if (diff.inHours.toInt() == 1) {
+        time = '1 hour ago';
+      }
+      else {
+        time = diff.inHours.toString() + ' hours ago';
+      }
+    }
+    else if (diff.inDays == 0) {
+      time = 'Today';
+    } else if (diff.inDays > 0 && diff.inDays < 7) {
+      if (diff.inDays == 1) {
+        time = diff.inDays.toString() + ' days ago';
+      } else {
+        time = diff.inDays.toString() + ' days ago';
+      }
+    } else {
+      if (diff.inDays == 7) {
+        time = (diff.inDays / 7).floor().toString() + ' weeks ago';
+      } else {
+
+        time = (diff.inDays / 7).floor().toString() + ' weeks ago';
+      }
+    }
+
+    return time;
+  }
+
+
+  Future loadPosts() async {
+    DBService _db = DBService(uid: _auth.userID!);
+    List<Post> currentUserPosts = await _db.allPostsOfCurrentUser;
+    List<Post> friendsPosts = await _db.allPostsFromCurrentUsersFriends;
+     setState((){
+       for(int i= 0; i< currentUserPosts.length; i++)
+         {
+           Post post = currentUserPosts[i];
+           posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg', mediaURL: post.mediaURL));
+         }
+       for(int i = 0; i < friendsPosts.length; i++)
+       {
+         Post post  = friendsPosts[i];
+         posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg', mediaURL: post.mediaURL));
+       }
+     });
+  }
 
   void increamentLike(FormPost post){
     setState(() {
@@ -33,19 +105,21 @@ class _FeedViewState extends State<FeedView> {
   }
 
 
-  List<FormPost> posts = [
-    FormPost('CS310 Project', 'Hey guys can you help me with my project?', '10 minutes ago', 10, 3, 'http://2.bp.blogspot.com/-0j7kHlU-NtI/UpD00rkd3TI/AAAAAAAADtU/9u_vcILav6M/s1600/BB-S5B-Walt-590.jpg'),
-    FormPost('HUM202 Report', 'When is the due date?', 'Yesterday', 120, 30, 'https://dazedimg-dazedgroup.netdna-ssl.com/592/azure/dazed-prod/1060/8/1068776.jpg'),
-    FormPost('SUSail Trip', 'Who is coming to the island trip tomorrow?', '2 days ago', 67, 24, 'https://pbs.twimg.com/profile_images/2603710564/dp3ln37ptpcb6lhz54ql_400x400.jpeg'),
-    FormPost('PROJ201 Final Report', 'Is there any chance to reschedule the deadline?', '3 days ago', 238, 55, 'https://static.wikia.nocookie.net/lotr/images/e/e7/Gandalf_the_Grey.jpg/revision/latest?cb=20121110131754'),
-    FormPost('Party on Saturday', 'We are organizing a party on Saturday at Lucca with Koç University. You can contact me if you want to come.', '3 days ago', 1123, 576, 'https://tr.web.img4.acsta.net/c_310_420/pictures/15/11/23/09/37/018271.jpg'),
-  ];
+  List<FormPost> posts = [];
+
+  @override
+  void initState() {
+    loadPosts();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () => {},
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AddPostView()));
+        },
         backgroundColor: AppColors.primary,
         child: const Icon(Icons.add),
       ),

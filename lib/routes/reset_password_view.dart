@@ -93,6 +93,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                SizedBox(height: 20.0),
                 Form(
                   key: _formKey,
                   child: TextFormField(
@@ -117,44 +118,49 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
                     ),
                   ),
                 ),
-                SizedBox(height: 8.0,),
+                SizedBox(height: 20.0,),
                 OutlinedButton(
                     onPressed:() async {
                       _isLoading = true;
                       if(_formKey.currentState!.validate())
                         {
                           _formKey.currentState!.save();
-                          if(await _auth.isEmailHasAccount(email) == true){
+                          try
+                          {
                             //reset password
                             await _auth.resetPassword(email);
                             _isLoading = false;
                             _showDialog('Email sent', 'We have sent you an email. You can reset your password.');
                           }
-                          else
+                          catch (e)
                           {
                             _isLoading = false;
                             _showDialog('Error', 'Email address that you entered does not match with any account');
                           }
                         }
                     },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+
+                  ),
                     child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 150.0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _isLoading ?
-                              CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                                  :
-                              Text('Send email',
-                                style: TextStyle(
-                                    fontSize: 15.0
-                                ),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 15.0,),
+                            _isLoading ?
+                            CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                                :
+                            Text('Send email',
+                              style: TextStyle(
+                                  fontSize: 15.0
                               ),
-                            ]
-                        ),
+                            ),
+                            SizedBox(height: 15.0,),
+                          ]
                       ),
                     ),
                 ),
