@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:untitled/routes/add_post_view.dart';
+import 'package:untitled/routes/other_user_profile_view.dart';
 import 'package:untitled/tab_controller.dart';
 import 'package:untitled/walkthrough/walkthrough__screen.dart';
 import 'package:untitled/routes/welcome_view.dart';

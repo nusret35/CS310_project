@@ -16,7 +16,7 @@ class StorageService{
   }
 
   Future uploadProfilePicture(String username, XFile image) async {
-    final Reference imagePath = profilePictureRef.child(username);
+    final Reference imagePath = profilePictureRef.child(username + '.jpg');
     await imagePath.putFile(File(image!.path)).catchError((e){
       print(e.toString());
     });
@@ -25,7 +25,7 @@ class StorageService{
   }
 
   Future uploadUrlProfilePicture(String username, String url) async {
-    final Reference imagePath = profilePictureRef.child(username);
+    final Reference imagePath = profilePictureRef.child(username + '.jpg');
     await imagePath.putFile(File(url)).catchError((e){
       print(e.toString());
     });
@@ -33,10 +33,11 @@ class StorageService{
   }
 
   Future<String> profilePictureUrlByUsername(String username) async {
-    final Reference imagePath = profilePictureRef.child(username);
+    final Reference imagePath = profilePictureRef.child(username + '.jpg');
     String url = await imagePath.getDownloadURL().catchError((e){
       print("pp not found");
-    }) ?? 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
+      return 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
+    });
     return url;
   }
 

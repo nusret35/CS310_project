@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled/model/user.dart';
@@ -116,6 +117,19 @@ class DBService {
     }).toList();
   }
 
+  List<Map<String, dynamic>> _getAllUsers(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return
+        {
+          "fullname": doc.get("fullname"),
+          "username": doc.get("username"),
+          "photoURL": doc.get("photoURL"),
+          "major": doc.get("major"),
+          "term": doc.get("term"),
+        };
+    }).toList();
+  }
+
   Future<DocumentSnapshot> getCurrentUserSnapshot() async {
     return await userCollection.doc(uid).get().catchError((e) {
       print(e.toString());
@@ -170,6 +184,14 @@ class DBService {
     });
   }
 
+  Future updateProfilePicture(XFile image) async {
+    AppUser cu = await currentUser;
+    String profilePictureURL = await StorageService().uploadProfilePicture(cu.username, image);
+    userCollection.doc(uid).update({
+      'photoURL': profilePictureURL
+    });
+  }
+
   Future<void> addFriend(String username) async {
     await userCollection.doc(uid).collection('friends').doc(username).set({
       'time': DateTime.now()
@@ -189,6 +211,10 @@ class DBService {
   Stream<List<Map<String, dynamic>>> get searchResults {
     return userCollection.snapshots().map(_searchUserResultListFromSnapshot);
   }
+  Stream<List<Map<String, dynamic>>> get allUsers {
+    return userCollection.snapshots().map(_getAllUsers);
+  }
+
 
 
 }
