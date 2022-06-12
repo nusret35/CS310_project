@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:untitled/routes/other_user_profile_view.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/crashlytics.dart';
 import 'package:untitled/services/db.dart';
@@ -143,40 +144,46 @@ class _SearchViewState extends State<SearchView> {
 
   Widget SearchResultTile(String profilePictureUrl,String username, String fullname)
   {
-    return Container(
-      color: Colors.white,
-      child: Column(
-          children: [
-            SizedBox(height: 10.0,),
-            Row(
-              children: [
-                SizedBox(width: 10.0,),
-                CircleAvatar(backgroundImage:NetworkImage(profilePictureUrl)),
-                SizedBox(width: 15.0,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${username}',
-                      style: TextStyle(
-                          color: Colors.black
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(padding: EdgeInsets.all(0), elevation: 0),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => OtherUserProfileView(username: username)));
+        },
+      child: Container(
+        color: Colors.white,
+        child: Column(
+            children: [
+              SizedBox(height: 10.0,),
+              Row(
+                children: [
+                  SizedBox(width: 10.0,),
+                  CircleAvatar(backgroundImage:NetworkImage(profilePictureUrl)),
+                  SizedBox(width: 15.0,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${username}',
+                        style: TextStyle(
+                            color: Colors.black
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      '${fullname}',
-                      style: TextStyle(
-                          color: Colors.grey
+                      Text(
+                        '${fullname}',
+                        style: TextStyle(
+                            color: Colors.grey
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ]
-                ),
-              ],
-            ),
-            SizedBox(height: 10.0,),
-            Divider(thickness: 1.0,)
-          ]
+                    ]
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.0,),
+              Divider(thickness: 1.0,)
+            ]
+        ),
       ),
     );
   }

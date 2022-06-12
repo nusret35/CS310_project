@@ -111,6 +111,7 @@ class _FeedViewState extends State<FeedView> {
 
   @override
   void initState() {
+    DBService(uid: _auth.userID!).friendRequestsStatus();
     loadPosts();
     super.initState();
   }

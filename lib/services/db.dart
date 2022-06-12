@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ class DBService {
   final String uid;
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
+  final CollectionReference friendRequestCollection = FirebaseFirestore.instance.collection('friendRequest');
 
   final usersRef = FirebaseFirestore.instance.collection('users').withConverter<AppUser>(
       fromFirestore: (snapshot, _) => AppUser.fromJson(snapshot.data()!),
@@ -60,6 +63,55 @@ class DBService {
     }
   }
 
+  Future sendFriendRequestToUsername(String username) async {
+    AppUser cu = await currentUser;
+    await friendRequestCollection.doc(username).collection('requests').doc(cu.username).set({"status": "pending"});
+    await friendRequestCollection.doc(cu.username).collection('sentRequests').doc(username).set({"status": "pending"});
+  }
+
+  Future<bool> isFriendRequestSentBefore(String username) async {
+    AppUser cu = await currentUser;
+    DocumentSnapshot snapshot = await friendRequestCollection.doc(username).collection('requests').doc(cu.username).get();
+    if(snapshot.exists)
+      return true;
+    return false;
+  }
+
+  Future<bool> checkIfUsersAreFriends(String username) async {
+    DocumentSnapshot snapshot = await userCollection.doc(uid).collection("friends").doc(username).get();
+    if (snapshot.exists)
+      return true;
+    return false;
+  }
+
+  Future friendRequestsStatus() async {
+    AppUser uc = await currentUser;
+    QuerySnapshot snapshot = await friendRequestCollection.doc(uc.username).collection("sentRequests").get();
+    final List<Map<String,dynamic>> requestsList =  await snapshot.docs.map((doc){
+                                              return {
+                                                "username": doc.id,
+                                                "status": doc.get("status"),
+                                              };
+                                              }).toList();
+    for (int i=0; i < requestsList.length; i++){
+      if (requestsList[i]["status"] == "accepted"){
+        userCollection.doc(uid).collection("friends").doc(requestsList[i]["username"]).set({});
+      }
+    }
+  }
+
+  Future acceptFriendRequest(String username) async {
+    AppUser cu = await currentUser;
+    await userCollection.doc(uid).collection("friends").doc(username).set({});
+    await friendRequestCollection.doc(cu.username).collection("requests").doc(username).delete();
+    await friendRequestCollection.doc(username).collection('sentRequests').doc(cu.username).set({"status": "accepted"});
+  }
+
+  Future declineFriendRequest(String username) async {
+    AppUser cu = await currentUser;
+    await friendRequestCollection.doc(cu.username).collection("requests").doc(username).delete();
+  }
+
   Future createUserWithGoogle(String fullname, String schoolName, String username, String major, String term, String email, String photoURL) async {
     userCollection.doc(uid).set({
       'fullname': fullname,
@@ -87,6 +139,7 @@ class DBService {
       );
     }).toList();
   }
+
   List<Post> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
       return Post.fromNetwork(
@@ -117,18 +170,6 @@ class DBService {
     }).toList();
   }
 
-  List<Map<String, dynamic>> _getAllUsers(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return
-        {
-          "fullname": doc.get("fullname"),
-          "username": doc.get("username"),
-          "photoURL": doc.get("photoURL"),
-          "major": doc.get("major"),
-          "term": doc.get("term"),
-        };
-    }).toList();
-  }
 
   Future<DocumentSnapshot> getCurrentUserSnapshot() async {
     return await userCollection.doc(uid).get().catchError((e) {
@@ -211,10 +252,13 @@ class DBService {
   Stream<List<Map<String, dynamic>>> get searchResults {
     return userCollection.snapshots().map(_searchUserResultListFromSnapshot);
   }
-  Stream<List<Map<String, dynamic>>> get allUsers {
-    return userCollection.snapshots().map(_getAllUsers);
-  }
 
+  Future<List<String>> get friendRequests async {
+    AppUser cu = await currentUser;
+    QuerySnapshot snapshot = await friendRequestCollection.doc(cu.username).collection('requests').get();
+    final List<String> allRequests = snapshot.docs.map((doc) => doc.id).toList();
+    return allRequests;
+  }
 
 
 }
