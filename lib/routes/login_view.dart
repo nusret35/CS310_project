@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:untitled/routes/google_login_finish_view.dart';
 import 'package:untitled/routes/reset_password_view.dart';
 import 'package:untitled/services/auth.dart';
@@ -14,6 +16,8 @@ import 'package:untitled/tab_controller.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/services/analytics.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+
 
 
 class LoginView extends StatefulWidget {
@@ -26,6 +30,9 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+
+  static final FacebookLogin facebookSignIn = new FacebookLogin();
+  String name = '', image;
 
   AuthService _auth = AuthService();
 
@@ -330,6 +337,64 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                 ),
+                SizedBox(height: 10.0,),
+                OutlinedButton(
+                  onPressed: () async {
+                    final FacebookLoginResult result =
+                    await facebookSignIn.logIn(['email']);
+
+                    switch (result.status) {
+                      case FacebookLoginStatus.loggedIn:
+                        final FacebookAccessToken accessToken = result.accessToken;
+                        final graphResponse = await http.get('https://graph.facebook.com/v2.12/me?fields=first_name,picture&access_token=${accessToken.token}');
+                        final profile = jsonDecode(graphResponse.body);
+                        print(profile);
+                        setState(() {
+                          name = profile['first_name'];
+                          image = profile['picture']['data']['url'];
+                        });
+                        print('''
+                        Logged in!
+                         
+                         Token: ${accessToken.token}
+                         User id: ${accessToken.userId}
+                         Expires: ${accessToken.expires}
+                         Permissions: ${accessToken.permissions}
+                         Declined permissions: ${accessToken.declinedPermissions}
+                         ''');
+                        break;
+                      case FacebookLoginStatus.cancelledByUser:
+                        print('Login cancelled by the user.');
+                        break;
+                      case FacebookLoginStatus.error:
+                        print('Something went wrong with the login process.\n'
+                            'Here\'s the error Facebook gave us: ${result.errorMessage}');
+                        break;
+                    }
+                  }
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                  ),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0,15,0,15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(image: AssetImage('assets/google_icon.png'),height: 25, width: 25),
+                          SizedBox(width: 4.0,),
+                          Text('Sign in with Google',
+                            style: TextStyle(
+                                fontSize: 15.0
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
               ],
             ),
           ),
