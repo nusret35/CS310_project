@@ -21,11 +21,12 @@ class OtherUserProfileView extends StatefulWidget {
 class _OtherUserProfileViewState extends State<OtherUserProfileView> {
   String username;
   _OtherUserProfileViewState({required this.username});
-
+  bool postsIsEmpty = false;
   AuthService _auth = AuthService();
   List<FormPost> loadedPosts = [];
   String profilePictureURL = '';
   bool friendRequestSentBefore = false;
+  bool ownAccount = false;
 
   void increamentLike(FormPost post){
     setState(() {
@@ -114,22 +115,37 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     for(int i= 0; i< userPosts.length; i++)
     {
       Post post = userPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID));
     }
     setState(() {
       loadedPosts = posts;
+      if (posts.isEmpty)
+        {
+          postsIsEmpty = true;
+        }
     });
   }
   
   Future checkFriendRequest() async {
     friendRequestSentBefore = await DBService(uid: _auth.userID!).isFriendRequestSentBefore(username);
   }
+
+  Future<bool> checkOwnAccount() async {
+    final AppUser cu = await DBService(uid: _auth.userID!).currentUser;
+    if (username == cu.username) {
+      ownAccount = true;
+      return true;
+    }
+    return false;
+
+  }
   
   @override
   void initState() {
     getProfilePictureURL(username);
     loadPosts();
-    checkFriendRequest();
+    if (checkOwnAccount()==false)
+      checkFriendRequest();
     super.initState();
   }
   @override
@@ -174,90 +190,93 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                        mainAxisAlignment: MainAxisAlignment.center,
                        children: [
                          //Spacer(),
-                         friendRequestSentBefore ? 
-                         OutlinedButton(onPressed: null,  style: ButtonStyle(
-                           backgroundColor: MaterialStateProperty.all<Color>(Colors.grey),
-                           foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                         ),
-                           child: Center(
-                             child: Padding(
-                               padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
-                               child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Text('Request sent',
-                                       style: TextStyle(
-                                           fontSize: 15.0
-                                       ),
-                                     ),
-                                   ]
-                               ),
-                             ),
-                           ),
-                         )
-                         :
-                         FutureBuilder(
-                           future: DBService(uid: _auth.userID!).checkIfUsersAreFriends(username),
-                           builder: (BuildContext context, AsyncSnapshot<bool> snapshot){
-                             bool areFriends = snapshot.data ?? false;
-                          if (areFriends)
-                            {
-                              return OutlinedButton(
-                                onPressed: null,
-                                style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all<Color>(Colors.lightBlueAccent),
-                                  foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                                ),
-                                child: Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
-                                    child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text('Friends',
-                                            style: TextStyle(
-                                                fontSize: 15.0
-                                            ),
-                                          ),
-                                          Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                          ),
-                                        ]
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          return OutlinedButton(
-                           onPressed: (){
-                             DBService(uid: _auth.userID!).sendFriendRequestToUsername(username);
-                             setState(() {
-                               friendRequestSentBefore = true;
-                             });
-                           },
-                           style: ButtonStyle(
-                             backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                         ownAccount ?
+                           SizedBox()
+                           :
+                           friendRequestSentBefore ?
+                           OutlinedButton(onPressed: null,  style: ButtonStyle(
+                             backgroundColor: MaterialStateProperty.all<Color>(Colors.grey),
                              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                            ),
-                           child: Center(
-                             child: Padding(
-                               padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
-                               child: Row(
-                                   mainAxisAlignment: MainAxisAlignment.center,
-                                   children: [
-                                     Text('Add as friend',
-                                       style: TextStyle(
-                                           fontSize: 15.0
+                             child: Center(
+                               child: Padding(
+                                 padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
+                                 child: Row(
+                                     mainAxisAlignment: MainAxisAlignment.center,
+                                     children: [
+                                       Text('Request sent',
+                                         style: TextStyle(
+                                             fontSize: 15.0
+                                         ),
                                        ),
-                                     ),
-                                   ]
+                                     ]
+                                 ),
                                ),
                              ),
-                           ),
-                       );
-                               }
-              )
+                           )
+                           :
+                           FutureBuilder(
+                             future: DBService(uid: _auth.userID!).checkIfUsersAreFriends(username),
+                             builder: (BuildContext context, AsyncSnapshot<bool> snapshot){
+                               bool areFriends = snapshot.data ?? false;
+                            if (areFriends)
+                              {
+                                return OutlinedButton(
+                                  onPressed: null,
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all<Color>(Colors.lightBlueAccent),
+                                    foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
+                                      child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text('Friends',
+                                              style: TextStyle(
+                                                  fontSize: 15.0
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                            ),
+                                          ]
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            return OutlinedButton(
+                             onPressed: (){
+                               DBService(uid: _auth.userID!).sendFriendRequestToUsername(username);
+                               setState(() {
+                                 friendRequestSentBefore = true;
+                               });
+                             },
+                             style: ButtonStyle(
+                               backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
+                               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                             ),
+                             child: Center(
+                               child: Padding(
+                                 padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
+                                 child: Row(
+                                     mainAxisAlignment: MainAxisAlignment.center,
+                                     children: [
+                                       Text('Add as friend',
+                                         style: TextStyle(
+                                             fontSize: 15.0
+                                         ),
+                                       ),
+                                     ]
+                                 ),
+                               ),
+                             ),
+                         );
+                                 }
+                )
                         // Spacer(),
                       ]
                      ),
@@ -305,6 +324,19 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                      },
                      )
                      ).toList()
+                         :
+                         postsIsEmpty ?
+                         [
+                           Center(
+                             child: Text(
+                               'No posts',
+                               style: TextStyle(
+                                 color: Colors.grey,
+                                 fontSize: 20.0
+                               ),
+                             ),
+                           )
+                         ]
                          :
                          [
                          Center(

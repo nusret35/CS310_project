@@ -143,6 +143,7 @@ class DBService {
   List<Post> _postsListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
       return Post.fromNetwork(
+        docID: doc.id,
         username: doc.get('username'),
         title: doc.get('title'),
         time: doc.get('time'),

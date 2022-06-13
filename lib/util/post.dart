@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 
 
 class Post {
+  String docID;
   String? username;
   String title;
   String content;
@@ -14,6 +15,7 @@ class Post {
   int comments = 0;
 
   Post({
+    required this.docID,
     required this.username,
     required this.title,
     required this.content,
@@ -22,6 +24,7 @@ class Post {
   });
 
   Post.fromNetwork({
+    required this.docID,
     required this.username,
     required this.title,
     required this.content,

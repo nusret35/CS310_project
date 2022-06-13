@@ -49,7 +49,7 @@ class _SignUpState extends State<SignUp> {
     else if (result is User)
       {
         DBService db = DBService(uid:_auth.userID!);
-        await db.createUser('${capitalize(name)} ${capitalize(surname)}', username,capitalize(schoolName), capitalize(major), term, email);
+        await db.createUser('${capitalize(name)} ${capitalize(surname)}', capitalize(schoolName), username, capitalize(major), term, email);
         await AppAnalytics.setUserId(result.uid);
         await AppAnalytics.setScreenName(TabView.routename);
         await AppAnalytics.logCustomEvent('Sign_Up_event', <String, dynamic> {'email' : result.email});

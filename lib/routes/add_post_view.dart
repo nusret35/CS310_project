@@ -34,7 +34,7 @@ class _AddPostViewState extends State<AddPostView> {
   {
     DBService db = DBService(uid: _auth.userID!);
     _formKey.currentState!.save();
-    db.sendPost(Post(username:'',title: title, content: content, media: _image));
+    db.sendPost(Post(username:'',title: title, content: content, media: _image,docID: ''));
     Navigator.of(context).pop(true);
   }
 

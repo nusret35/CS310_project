@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+//import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:untitled/routes/google_login_finish_view.dart';
 import 'package:untitled/routes/reset_password_view.dart';
 import 'package:untitled/services/auth.dart';
@@ -31,8 +31,8 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
 
-  static final FacebookLogin facebookSignIn = new FacebookLogin();
-  String name = '', image;
+  //static final FacebookLogin facebookSignIn = new FacebookLogin();
+  //String name = '', image;
 
   AuthService _auth = AuthService();
 
@@ -338,6 +338,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
                 SizedBox(height: 10.0,),
+                /*
                 OutlinedButton(
                   onPressed: () async {
                     final FacebookLoginResult result =
@@ -393,7 +394,7 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ),
                   ),
-                ),
+                ),*/
 
               ],
             ),

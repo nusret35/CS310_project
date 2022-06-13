@@ -10,8 +10,10 @@ class FormPost {
   final String profilePictureURL;
   bool postFavorited = false;
   final String? mediaURL;
+  final String docID;
 
   FormPost({
+  required this.docID,
   required this.title,
   required this.content,
   required this.time,
