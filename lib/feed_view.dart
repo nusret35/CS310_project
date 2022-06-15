@@ -9,6 +9,7 @@ import 'package:untitled/services/storage.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/util/post.dart';
 import 'package:intl/intl.dart';
+import 'package:untitled/services/db.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({Key? key}) : super(key: key);
@@ -19,6 +20,7 @@ class FeedView extends StatefulWidget {
 }
 
 class _FeedViewState extends State<FeedView> {
+  final _formKey = GlobalKey<FormState>();
 
   AuthService _auth = AuthService();
 
@@ -87,11 +89,16 @@ class _FeedViewState extends State<FeedView> {
      });
   }
 
-  void increamentLike(FormPost post){
+  void increamentLike(FormPost post) async{
+    DBService _db = DBService(uid: _auth.userID!);
+    String username = post.docID.substring(0, post.docID.indexOf('-'));
+    print(username);
     setState(() {
 
       post.likes++;
+
     });
+    _db.updateLike(username, post.docID, post.likes);
   }
 
   void favoritePost(FormPost post){
