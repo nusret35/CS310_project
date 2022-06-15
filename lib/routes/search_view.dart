@@ -17,7 +17,7 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
 
   AuthService _auth = AuthService();
-  late DBService _db;
+  DBService _db = DBService(uid: '');
 
   List<Map<String, dynamic>> _allUsers = [
   ];

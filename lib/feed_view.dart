@@ -77,12 +77,12 @@ class _FeedViewState extends State<FeedView> {
     for(int i = 0; i < friendsPosts.length; i++)
     {
       Post post  = friendsPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID,location: post.location));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID,location: post.location));
     }
     for(int i= 0; i< currentUserPosts.length; i++)
     {
       Post post = currentUserPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
     }
      setState(() {
        loadedPosts = posts;
@@ -92,13 +92,13 @@ class _FeedViewState extends State<FeedView> {
   void increamentLike(FormPost post) async{
     DBService _db = DBService(uid: _auth.userID!);
     String username = post.docID.substring(0, post.docID.indexOf('-'));
-    print(username);
-    setState(() {
-
-      post.likes++;
-
-    });
-    _db.updateLike(username, post.docID, post.likes);
+    bool firstLike = await _db.updateLike(username, post.docID, post.likes+1);
+    if (firstLike)
+      {
+        setState(() {
+          post.likes++;
+        });
+      };
   }
 
   void favoritePost(FormPost post){

@@ -1,6 +1,4 @@
 
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -56,24 +54,22 @@ class DBService {
     }
   }
 
-  Future updateLike(String userName, String docID, int likeNum) async {
+  Future<bool> updateLike(String userName, String docID, int likeNum) async {
     AppUser cu = await currentUser as AppUser;
+    bool likeBefore = await islikedBefore(userName, docID);
     try {
-      bool likeBefore = await islikedBefore(cu.username, docID);
       if(!likeBefore) {
         await postCollection.doc(userName).collection('posts').doc(docID).update({
           'likes' : likeNum
         });
         print('like incremented');
         await postCollection.doc(userName).collection('posts').doc(docID).collection('likedUser').doc(cu.username).set({});
-
       }
-
-
 
     } catch(e) {
       print(e.toString());
     }
+    return !likeBefore;
   }
 
   Future<bool> islikedBefore(String userName, String docID) async {
@@ -82,11 +78,9 @@ class DBService {
     DocumentSnapshot snapshot = await postCollection.doc(userName).collection('posts').doc(docID).collection('likedUser').doc(cu.username).get();
     print(snapshot.exists);
     if(!snapshot.exists) {
-      print("flsae");
       return false;
     }
     else {
-      print('tur');
       return true;
     }
   }
@@ -171,7 +165,8 @@ class DBService {
         time: doc.get('time'),
         content: doc.get('content'),
         mediaURL: doc.get('url'),
-        location: doc.get('location')
+        location: doc.get('location'),
+        likes: doc.get('likes')
       );
     }).toList();
   }

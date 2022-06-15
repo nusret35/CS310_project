@@ -12,7 +12,7 @@ class Post {
   XFile? media;
   String? mediaURL = '';
   String? location;
-  int likes = 0;
+  int? likes = 0;
   int comments = 0;
 
   Post({
@@ -33,5 +33,6 @@ class Post {
     this.time,
     this.mediaURL,
     this.location,
+    this.likes,
   });
 }
