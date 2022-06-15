@@ -22,7 +22,7 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
 
   final AuthService _auth = AuthService();
-  DBService _db = DBService(uid: '');
+  late DBService _db;
   final AppUser currentUser = AppUser(fullname: 'loading', username: 'loading', schoolName: 'loading', email: 'loading', major: 'loading', term: 'loading');
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
@@ -31,7 +31,8 @@ class _ProfileViewState extends State<ProfileView> {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _image = pickedFile;
-    });
+    }
+    );
   }
 
   Future<void> updateImage() async {
@@ -39,6 +40,7 @@ class _ProfileViewState extends State<ProfileView> {
     await pickImage();
     await _db.updateProfilePicture(_image!);
   }
+
   Future<void> _changingProfilePictureDialog() async {
     bool isAndroid = Platform.isAndroid;
     String title = 'Changing Profile Picture';

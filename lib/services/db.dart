@@ -2,10 +2,8 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+
 import 'package:untitled/model/user.dart';
-import 'package:untitled/routes/search_view.dart';
 import 'package:untitled/services/storage.dart';
 import 'package:untitled/util/post.dart';
 
@@ -129,14 +127,8 @@ class DBService {
 
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
-      return AppUser(
-          fullname: doc.get("fullname"),
-          username: doc.get("username"),
-          email: doc.get("email"),
-          schoolName: doc.get("schoolName"),
-          major: doc.get("major"),
-          term: doc.get("term"),
-      );
+      Map<String, dynamic> json = doc as Map<String, dynamic>;
+      return AppUser.fromJson(json);
     }).toList();
   }
 
@@ -251,7 +243,15 @@ class DBService {
   }
 
   Stream<List<Map<String, dynamic>>> get searchResults {
-    return userCollection.snapshots().map(_searchUserResultListFromSnapshot);
+    return  userCollection.snapshots().map(_searchUserResultListFromSnapshot);
+  }
+  AppUser? _getRealTimeUser(DocumentSnapshot snapshot) {
+    final Map<String,dynamic> json = snapshot.data() as Map<String,dynamic>;
+    return AppUser.fromJson(json);
+  }
+
+  Stream<AppUser?> get realTimeUser {
+    return userCollection.doc(uid).snapshots().map(_getRealTimeUser);
   }
 
   Future<List<String>> get friendRequests async {

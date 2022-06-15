@@ -106,7 +106,6 @@ class _FeedViewState extends State<FeedView> {
     });
   }
 
-
   List<FormPost> loadedPosts = [];
 
   @override

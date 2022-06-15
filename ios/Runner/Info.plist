@@ -4,6 +4,8 @@
 <dict>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>$(PRODUCT_NAME) wants to access your photo library.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>$(PRODUCT_NAME) wants to know your location.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

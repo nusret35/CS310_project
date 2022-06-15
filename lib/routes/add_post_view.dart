@@ -1,12 +1,13 @@
-import 'dart:io';
 import 'package:cross_file_image/cross_file_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled/services/db.dart';
+import 'package:untitled/services/location.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/util/styles.dart';
 import 'package:untitled/util/post.dart';
+
 
 class AddPostView extends StatefulWidget {
   const AddPostView({Key? key}) : super(key: key);
@@ -20,6 +21,7 @@ class _AddPostViewState extends State<AddPostView> {
   AuthService _auth = AuthService();
   String title = '';
   String content = '';
+  String locationName = '';
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
@@ -36,6 +38,16 @@ class _AddPostViewState extends State<AddPostView> {
     _formKey.currentState!.save();
     db.sendPost(Post(username:'',title: title, content: content, media: _image,docID: ''));
     Navigator.of(context).pop(true);
+  }
+
+  Future<void> addLocation() async
+  {
+    LocationService locationService = LocationService();
+    String? locName = await locationService.getTheNameOfTheCurrentLocation();
+    print(locName ?? 'no loc name');
+    setState(() {
+      locationName = locName ?? 'no loc name';
+    });
   }
 
   @override
@@ -98,35 +110,41 @@ class _AddPostViewState extends State<AddPostView> {
                       ),
                     ),
                   ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: (_image != null) ?
-                        Image(
-                          image: XFileImage(_image!))
-                        :
-                    InputChip(
-                        onPressed: pickImage,
-                        backgroundColor: AppColors.primary,
-                        label: Container(
-                          width: 160.0,
-                          height: 20.0,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.add,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                'Add photo or video...',
-                                style: TextStyle(
-                                  color: Colors.white
+                  Row(
+                    children: [ 
+                      IconButton(onPressed: addLocation, icon: Icon(Icons.location_city)),
+                      Container(
+                      alignment: Alignment.centerLeft,
+                      child: (_image != null) ?
+                          Image(
+                            image: XFileImage(_image!))
+                          :
+                      InputChip(
+                          onPressed: pickImage,
+                          backgroundColor: AppColors.primary,
+                          label: Container(
+                            width: 160.0,
+                            height: 20.0,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  color: Colors.white,
                                 ),
-                              )
-                            ],
-                          ),
-                        )
+                                Text(
+                                  'Add photo or video...',
+                                  style: TextStyle(
+                                    color: Colors.white
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
 
-                    ),
+                        ),
+                      ),
+
+                    ],
                   ),
                 ],
               ),

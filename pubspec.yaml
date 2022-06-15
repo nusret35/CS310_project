@@ -46,7 +46,8 @@ dependencies:
   firebase_crashlytics: any
   cross_file_image: any
   intl: any
-
+  location: ^4.4.0
+  geocoding: ^2.0.4
 
 
 
