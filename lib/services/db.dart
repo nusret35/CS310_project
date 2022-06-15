@@ -109,15 +109,19 @@ class DBService {
   Future friendRequestsStatus() async {
     AppUser uc = await currentUser;
     QuerySnapshot snapshot = await friendRequestCollection.doc(uc.username).collection("sentRequests").get();
-    final List<Map<String,dynamic>> requestsList =  await snapshot.docs.map((doc){
-                                              return {
-                                                "username": doc.id,
-                                                "status": doc.get("status"),
-                                              };
-                                              }).toList();
-    for (int i=0; i < requestsList.length; i++){
-      if (requestsList[i]["status"] == "accepted"){
-        userCollection.doc(uid).collection("friends").doc(requestsList[i]["username"]).set({});
+    if (snapshot.docs.isNotEmpty) {
+      final List<Map<String, dynamic>> requestsList = await snapshot.docs.map((
+          doc) {
+        return {
+          "username": doc.id,
+          "status": doc.get("status"),
+        };
+      }).toList();
+      for (int i = 0; i < requestsList.length; i++) {
+        if (requestsList[i]["status"] == "accepted") {
+          userCollection.doc(uid).collection("friends").doc(
+              requestsList[i]["username"]).set({});
+        }
       }
     }
   }
@@ -175,7 +179,25 @@ class DBService {
     final CollectionReference ref = postCollection.doc(username).collection('posts');
     QuerySnapshot snapshot = await ref.get();
     List<Post> postsOfUser = await _postsListFromSnapshot(snapshot);
-    return postsOfUser;
+    return _sortPosts(postsOfUser);
+  }
+
+
+  List<Post> _sortPosts(List<Post> posts) {
+    List<Post> sortedPosts = [];
+    while (posts.isNotEmpty) {
+      Post currentPost = posts[0];
+      for (int i = 0; i < posts.length; i++) {
+        if (DateTime.fromMillisecondsSinceEpoch(posts[i].time!.seconds * 1000)
+            .isAfter(DateTime.fromMillisecondsSinceEpoch(
+            currentPost.time!.seconds * 1000))) {
+          currentPost = posts[i];
+        }
+      }
+      sortedPosts.add(currentPost);
+      posts.remove(currentPost);
+    } 
+    return sortedPosts;
   }
 
   List<Map<String, dynamic>> _searchUserResultListFromSnapshot(QuerySnapshot snapshot) {
