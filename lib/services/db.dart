@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -58,6 +59,41 @@ class DBService {
         }
     } catch(e) {
       print(e.toString());
+    }
+  }
+
+  Future updateLike(String userName, String docID, int likeNum) async {
+    AppUser cu = await currentUser as AppUser;
+    try {
+      bool likeBefore = await islikedBefore(cu.username, docID);
+      if(!likeBefore) {
+        await postCollection.doc(userName).collection('posts').doc(docID).update({
+          'likes' : likeNum
+        });
+        print('like incremented');
+        await postCollection.doc(userName).collection('posts').doc(docID).collection('likedUser').doc(cu.username).set({});
+
+      }
+
+
+
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
+  Future<bool> islikedBefore(String userName, String docID) async {
+
+    AppUser cu = await currentUser as AppUser;
+    DocumentSnapshot snapshot = await postCollection.doc(userName).collection('posts').doc(docID).collection('likedUser').doc(cu.username).get();
+    print(snapshot.exists);
+    if(!snapshot.exists) {
+      print("flsae");
+      return false;
+    }
+    else {
+      print('tur');
+      return true;
     }
   }
 
