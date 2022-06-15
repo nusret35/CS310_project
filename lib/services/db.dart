@@ -11,6 +11,7 @@ class DBService {
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
   final CollectionReference friendRequestCollection = FirebaseFirestore.instance.collection('friendRequest');
+  final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
 
   final usersRef = FirebaseFirestore.instance.collection('users').withConverter<AppUser>(
       fromFirestore: (snapshot, _) => AppUser.fromJson(snapshot.data()!),
@@ -64,12 +65,20 @@ class DBService {
         });
         print('like incremented');
         await postCollection.doc(userName).collection('posts').doc(docID).collection('likedUser').doc(cu.username).set({});
+        await _sendLikeNotification(userName, docID, likeNum);
       }
 
     } catch(e) {
       print(e.toString());
     }
     return !likeBefore;
+  }
+
+  Future _sendLikeNotification(String username, String docID, int likeNumber) async {
+    AppUser cu = await currentUser;
+    notificationCollection.doc(username).collection('likes').doc('${docID}-${likeNumber.toString()}').set({
+      "username" : cu.username,
+    });
   }
 
   Future<bool> islikedBefore(String userName, String docID) async {
