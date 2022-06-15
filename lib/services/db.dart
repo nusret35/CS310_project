@@ -47,15 +47,9 @@ class DBService {
         'time': Timestamp.now(),
         'likes': 0,
         'comments': 0,
-        'url':'',
+        'url':post.mediaURL ?? '',
+        'location':post.location ?? ''
       });
-      if (post.media != null)
-        {
-          String url = await StorageService().uploadPostImage(docID,post.media!);
-          await postCollection.doc(cu.username).collection('posts').doc(docID).update({
-            'url':url
-          });
-        }
     } catch(e) {
       print(e.toString());
     }
@@ -141,6 +135,7 @@ class DBService {
         time: doc.get('time'),
         content: doc.get('content'),
         mediaURL: doc.get('url'),
+        location: doc.get('location')
       );
     }).toList();
   }

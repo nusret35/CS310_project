@@ -11,6 +11,7 @@ class FormPost {
   bool postFavorited = false;
   final String? mediaURL;
   final String docID;
+  final String? location;
 
   FormPost({
   required this.docID,
@@ -20,7 +21,9 @@ class FormPost {
   required this.likes,
   required this.comments,
   required this.profilePictureURL,
-  this.mediaURL});
+  this.mediaURL,
+  this.location,
+  });
 }
 
 class PostCard extends StatelessWidget {
@@ -47,6 +50,20 @@ class PostCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                (post.location=='') ?
+                SizedBox()
+                :
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(children: [
+                    Icon(Icons.location_pin, color: AppColors.primary),
+                    SizedBox(width: 5.0,),
+                    Text(post.location!,
+                      style: TextStyle(color: Colors.grey)
+                      ,),
+                  ],
+                  ),
+                ),
                 Row(
                     children:[
                       CircleAvatar(backgroundColor: AppColors.colorRed,backgroundImage: NetworkImage(post.profilePictureURL),),

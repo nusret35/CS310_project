@@ -21,7 +21,7 @@ class _AddPostViewState extends State<AddPostView> {
   AuthService _auth = AuthService();
   String title = '';
   String content = '';
-  String locationName = '';
+  String? _locationName;
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   XFile? _image;
@@ -36,7 +36,7 @@ class _AddPostViewState extends State<AddPostView> {
   {
     DBService db = DBService(uid: _auth.userID!);
     _formKey.currentState!.save();
-    db.sendPost(Post(username:'',title: title, content: content, media: _image,docID: ''));
+    db.sendPost(Post(username:'',title: title, content: content, media: _image,docID: '',location: _locationName));
     Navigator.of(context).pop(true);
   }
 
@@ -46,7 +46,7 @@ class _AddPostViewState extends State<AddPostView> {
     String? locName = await locationService.getTheNameOfTheCurrentLocation();
     print(locName ?? 'no loc name');
     setState(() {
-      locationName = locName ?? 'no loc name';
+      _locationName = locName ?? 'no loc name';
     });
   }
 
@@ -75,6 +75,19 @@ class _AddPostViewState extends State<AddPostView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  (_locationName != null) ?
+                  Row(children: [
+                    Icon(Icons.location_pin, color: AppColors.primary),
+                    SizedBox(width: 5.0,),
+                    Text(_locationName!,
+                    style: TextStyle(color: Colors.grey)
+                      ,),
+                    ],
+                  )
+                      :
+                  SizedBox()
+                  ,
+                  SizedBox(height: 10.0,),
                   Text(
                     'Title',
                     style: kBoldLabelStyle,
@@ -111,8 +124,37 @@ class _AddPostViewState extends State<AddPostView> {
                     ),
                   ),
                   Row(
-                    children: [ 
-                      IconButton(onPressed: addLocation, icon: Icon(Icons.location_city)),
+                    children: [
+                      Container(
+                        child:
+                      (_locationName == null) ?
+                        InputChip(
+                            onPressed: addLocation,
+                            backgroundColor: AppColors.primary,
+                            label: Container(
+                              width: 120.0,
+                              height: 20.0,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_pin,
+                                    color: Colors.white,
+                                  ),
+                                  Text(
+                                    'Share location',
+                                    style: TextStyle(
+                                        color: Colors.white
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                        )
+                        :
+                        SizedBox()
+                        ,
+                      ),
+                      SizedBox(width: 10.0,),
                       Container(
                       alignment: Alignment.centerLeft,
                       child: (_image != null) ?

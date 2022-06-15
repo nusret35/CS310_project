@@ -11,6 +11,7 @@ class Post {
   Timestamp? time;
   XFile? media;
   String? mediaURL = '';
+  String? location;
   int likes = 0;
   int comments = 0;
 
@@ -20,7 +21,8 @@ class Post {
     required this.title,
     required this.content,
     this.time,
-    this.media
+    this.media,
+    this.location,
   });
 
   Post.fromNetwork({
@@ -29,6 +31,7 @@ class Post {
     required this.title,
     required this.content,
     this.time,
-    this.mediaURL
+    this.mediaURL,
+    this.location,
   });
 }

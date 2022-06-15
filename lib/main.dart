@@ -151,9 +151,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   Future afterTwoSeconds() async {
     await Future.delayed(Duration(seconds: 2), () {
-      setState(() {
+      /*setState(() {
         twoSecondsPassed = true;
-      });
+      });*/
     });
   }
 

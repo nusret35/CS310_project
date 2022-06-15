@@ -48,7 +48,7 @@ class LocationService {
     try {
       LocationData coordinates = await _getLocation();
       List<Placemark> address = await placemarkFromCoordinates(coordinates.latitude!, coordinates.longitude!);
-      return address[0].toString();
+      return '${address[0].name} ${address[0].locality}, ${address[0].country}';
     } catch (e) {
       print(e.toString());
     }
