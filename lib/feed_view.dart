@@ -10,6 +10,7 @@ import 'package:untitled/services/auth.dart';
 import 'package:untitled/util/post.dart';
 import 'package:intl/intl.dart';
 import 'package:untitled/services/db.dart';
+import 'package:untitled/routes/post_comment_view.dart';
 
 class FeedView extends StatefulWidget {
   const FeedView({Key? key}) : super(key: key);
@@ -114,6 +115,13 @@ class _FeedViewState extends State<FeedView> {
     });
   }
 
+  _leaveComment(){
+    setState(() {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView()));
+    });
+
+  }
+
   List<FormPost> loadedPosts = [];
 
   @override
@@ -145,7 +153,8 @@ class _FeedViewState extends State<FeedView> {
                   post,
                   likeButtonAction: (){
                     increamentLike(post);
-                }, comment: (){;
+                }, commentButtonAction: () {
+                    _leaveComment();
                 }, starButtonAction: (){
                     favoritePost(post);
                     },

@@ -29,13 +29,13 @@ class FormPost {
 class PostCard extends StatelessWidget {
   final FormPost post;
   final VoidCallback likeButtonAction;
-  final VoidCallback comment;
+  final VoidCallback commentButtonAction;
   final VoidCallback starButtonAction;
 
   PostCard(
       this.post, {
         required this.likeButtonAction,
-        required this.comment,
+        required this.commentButtonAction,
         required this.starButtonAction,
       });
 
@@ -130,21 +130,13 @@ class PostCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
 
-                    const Icon(
-                      Icons.comment,
-                      size: 14.0,
+                    IconButton(
+                      icon: Icon(Icons.chat_bubble_outline),
+
                       color: AppColors.color_blue,
+                      onPressed: commentButtonAction,
                     ),
 
-                    const SizedBox(width: 5),
-
-                    Text(
-                      post.comments.toString(),
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w300
-                      ),
-                    ),
 
                     const SizedBox(width: 8),
 

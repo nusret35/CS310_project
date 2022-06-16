@@ -55,6 +55,20 @@ class DBService {
     }
   }
 
+  Future addComment(String username, String docID, String comment) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docIDC = '${cu.username}-${DateTime.now()}';
+      await postCollection.doc(username).collection('posts').doc(docID).collection('userComments').doc(docIDC).set({
+        'Comment' : comment
+      });
+
+    } catch(e) {
+      print(e.toString());
+    }
+
+  }
+
   Future<bool> updateLike(String userName, String docID, int likeNum) async {
     AppUser cu = await currentUser as AppUser;
     bool likeBefore = await islikedBefore(userName, docID);

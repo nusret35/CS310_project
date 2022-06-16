@@ -48,6 +48,7 @@ dependencies:
   intl: any
   location: ^4.4.0
   geocoding: ^2.0.4
+  comment_box: ^0.0.17
 
 
 

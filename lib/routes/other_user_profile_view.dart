@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:untitled/routes/post_comment_view.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/services/storage.dart';
@@ -19,6 +20,8 @@ class OtherUserProfileView extends StatefulWidget {
 }
 
 class _OtherUserProfileViewState extends State<OtherUserProfileView> {
+
+
   String username;
   _OtherUserProfileViewState({required this.username});
   bool postsIsEmpty = false;
@@ -45,6 +48,13 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
         post.postFavorited = false;
       }
     });
+  }
+
+  _leaveComment(){
+    setState(() {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView()));
+    });
+
   }
 
 
@@ -125,7 +135,7 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
         }
     });
   }
-  
+
   Future checkFriendRequest() async {
     friendRequestSentBefore = await DBService(uid: _auth.userID!).isFriendRequestSentBefore(username);
   }
@@ -139,7 +149,7 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     return false;
 
   }
-  
+
   @override
   void initState() {
     getProfilePictureURL(username);
@@ -318,7 +328,8 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                        post,
                        likeButtonAction: (){
                          increamentLike(post);
-                       }, comment: (){;
+                       }, commentButtonAction: () {
+                         _leaveComment();
                      }, starButtonAction: (){
                        favoritePost(post);
                      },
