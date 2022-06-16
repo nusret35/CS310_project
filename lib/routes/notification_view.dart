@@ -16,6 +16,7 @@ class NotificationView extends StatefulWidget {
 class _NotificationViewState extends State<NotificationView> {
 
   AuthService _auth = AuthService();
+  List<Map<String, dynamic>> notifications = [];
 
   Future<List<Map<String,String>>> loadRequests(List<String> requests) async {
     List<Map<String,String>> fRequests = [];
@@ -29,10 +30,28 @@ class _NotificationViewState extends State<NotificationView> {
       }
     return fRequests;
   }
+  
+  Future<void> loadNotifications() async {
+    List<Map<String, dynamic>> loadedNotifications = await DBService(uid: _auth.userID!).likeNotifications;
+    List<Map<String, dynamic>> notificationsWithPhotoURL = [];
+    for (int i=0; i < loadedNotifications.length; i++)
+      {
+        final not = {
+          "username": loadedNotifications[i]["username"],
+          "timestamp": loadedNotifications[i]["timestamp"],
+          "photoURL": await StorageService().profilePictureUrlByUsername(loadedNotifications[i]["username"])
+        };
+        notificationsWithPhotoURL.add(not);
+      }
+
+    setState(() {
+      notifications = notificationsWithPhotoURL;
+    });
+  }
 
   @override
   void initState() {
-    DBService(uid: _auth.userID!).friendRequests;
+    loadNotifications();
     super.initState();
   }
   @override
@@ -60,16 +79,27 @@ class _NotificationViewState extends State<NotificationView> {
                         return FutureBuilder(
                             future: loadRequests(requests),
                             builder: (BuildContext context, AsyncSnapshot<List<Map<String,String>>> data){
-                              if (snapshot.hasData == true) {
+                              if (snapshot.connectionState == ConnectionState.done) {
                                 List<Map<String, String>> friendRequests = data
                                     .data ?? [];
                                 return Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .stretch,
-                                  children: friendRequests.map((e) =>
-                                      friendRequest(
-                                          e["photoURL"]!, e["username"]!))
-                                      .toList(),
+                                  children: 
+                                  [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .stretch,
+                                    children: friendRequests.map((e) =>
+                                        friendRequest(
+                                            e["photoURL"]!, e["username"]!))
+                                        .toList(),
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: notifications.map((not) =>
+                                        notification(not["photoURL"], not["username"], 'liked your post'),)
+                                        .toList(),
+                                    ),
+                                  ]
                                 );
                               }
                               return Center(child:

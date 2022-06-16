@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:untitled/model/user.dart';
@@ -17,6 +18,8 @@ class DBService {
       fromFirestore: (snapshot, _) => AppUser.fromJson(snapshot.data()!),
       toFirestore: (user, _) => user.toJson()
   );
+
+  late String username;
 
   DBService({
     required this.uid
@@ -92,6 +95,7 @@ class DBService {
     AppUser cu = await currentUser;
     notificationCollection.doc(username).collection('likes').doc('${docID}-${likeNumber.toString()}').set({
       "username" : cu.username,
+      "timestamp" : Timestamp.now(),
     });
   }
 
@@ -107,6 +111,7 @@ class DBService {
       return true;
     }
   }
+
 
   Future sendFriendRequestToUsername(String username) async {
     AppUser cu = await currentUser;
@@ -178,7 +183,7 @@ class DBService {
 
   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.docs.map((doc){
-      Map<String, dynamic> json = doc as Map<String, dynamic>;
+      Map<String, dynamic> json = doc.data() as Map<String, dynamic>;
       return AppUser.fromJson(json);
     }).toList();
   }
@@ -219,8 +224,26 @@ class DBService {
       }
       sortedPosts.add(currentPost);
       posts.remove(currentPost);
-    } 
+    }
     return sortedPosts;
+  }
+
+  List<Map<String, dynamic>> _sortLikeNotifications(List<Map<String, dynamic>> notifications) {
+    print(notifications.length);
+    List<Map<String, dynamic>> sortedNot = [];
+    while (notifications.isNotEmpty) {
+    Map<String, dynamic> currentNot = notifications[0];
+    for (int i = 0; i < notifications.length ; i++){
+      Timestamp currentTimestamp = currentNot["timestamp"] as Timestamp;
+      Timestamp notTimestamp = notifications[i]["timestamp"] as Timestamp;
+      if (DateTime.fromMillisecondsSinceEpoch(notTimestamp.seconds * 1000).isAfter(DateTime.fromMillisecondsSinceEpoch(currentTimestamp.seconds * 1000))) {
+          currentNot = notifications[i];
+        }
+      }
+      sortedNot.add(currentNot);
+      notifications.remove(currentNot);
+    }
+    return sortedNot;
   }
 
   List<Map<String, dynamic>> _searchUserResultListFromSnapshot(QuerySnapshot snapshot) {
@@ -231,6 +254,16 @@ class DBService {
         "username": doc.get("username"),
         "photoURL": doc.get("photoURL"),
     };
+    }).toList();
+  }
+
+  List<Map<String, dynamic>> _likeNotifications(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return
+        {
+        "username": doc.get("username"),
+        "timestamp": doc.get("timestamp"),
+        };
     }).toList();
   }
 
@@ -309,6 +342,13 @@ class DBService {
     await postCollection.doc(user.username).delete();
   }
 
+  Future<List<Map<String, dynamic>>> get likeNotifications async{
+    AppUser uc = await currentUser;
+    QuerySnapshot snapshot = await notificationCollection.doc(uc.username).collection('likes').get();
+    List<Map<String, dynamic>> notifications = _likeNotifications(snapshot);
+    return _sortLikeNotifications(notifications);
+  }
+
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
   }
@@ -316,6 +356,8 @@ class DBService {
   Stream<List<Map<String, dynamic>>> get searchResults {
     return  userCollection.snapshots().map(_searchUserResultListFromSnapshot);
   }
+
+
   AppUser? _getRealTimeUser(DocumentSnapshot snapshot) {
     final Map<String,dynamic> json = snapshot.data() as Map<String,dynamic>;
     return AppUser.fromJson(json);

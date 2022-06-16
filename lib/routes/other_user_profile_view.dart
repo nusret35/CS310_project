@@ -125,7 +125,7 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     for(int i= 0; i< userPosts.length; i++)
     {
       Post post = userPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
     }
     setState(() {
       loadedPosts = posts;
@@ -324,7 +324,9 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                      crossAxisAlignment: CrossAxisAlignment.stretch,
                      children:
                      loadedPosts.isNotEmpty ?
-                     loadedPosts.map((post) => PostCard(
+                     loadedPosts.map((post) =>
+
+                         PostCard(
                        post,
                        likeButtonAction: (){
                          increamentLike(post);
