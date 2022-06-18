@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/services/location.dart';
+import 'package:untitled/services/storage.dart';
 import 'package:untitled/util/colors.dart';
 import 'package:untitled/services/auth.dart';
 import 'package:untitled/util/styles.dart';
@@ -11,50 +12,65 @@ import 'package:comment_box/comment/comment.dart';
 
 
 class postCommentView extends StatefulWidget {
-  const postCommentView({Key? key}) : super(key: key);
+
+  String username;
+  String docID;
+  int commentNum;
+
+  postCommentView({
+    required this.username,
+    required this.docID,
+    required this.commentNum,
+  });
 
   @override
-  State<postCommentView> createState() => _postCommentViewState();
+  State<postCommentView> createState() => _postCommentViewState(username:username,docID: docID, commentNum: commentNum);
 }
 
 class _postCommentViewState extends State<postCommentView> {
 
   AuthService _auth = AuthService();
+  String username;
+  String docID;
   String title = '';
   String content = '';
-  final ImagePicker _picker = ImagePicker();
-  XFile? _image;
-  Future pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = pickedFile;
-    });
-  }
+  int commentNum;
+  List<Map<String,dynamic>> comments = [];
+
+  _postCommentViewState({
+    required this.username,
+    required this.docID,
+    required this.commentNum
+  });
+
 
   final formKey = GlobalKey<FormState>();
   final TextEditingController commentController = TextEditingController();
-  List filedata = [
-    {
-      'name': 'Adeleye Ayodeji',
-      'pic': 'https://picsum.photos/300/30',
-      'message': 'I love to code'
-    },
-    {
-      'name': 'Biggi Man',
-      'pic': 'https://picsum.photos/300/30',
-      'message': 'Very cool'
-    },
-    {
-      'name': 'Biggi Man',
-      'pic': 'https://picsum.photos/300/30',
-      'message': 'Very cool'
-    },
-    {
-      'name': 'Biggi Man',
-      'pic': 'https://picsum.photos/300/30',
-      'message': 'Very cool'
-    },
-  ];
+
+  Future<void> loadComments() async {
+    List<Map<String, dynamic>> loadedComments = await DBService(uid: _auth.userID!).getComments(username, docID);
+    List<Map<String, dynamic>> cm = [];
+    for (int i = 0; i< loadedComments.length; i++)
+      {
+        final Map<String,dynamic> comment = {
+          "name": loadedComments[i]["username"],
+          "message": loadedComments[i]["comment"],
+          "pic": await StorageService().profilePictureUrlByUsername(loadedComments[i]["username"]),
+        };
+        cm.add(comment);
+      }
+    setState(() {
+      comments = cm;
+    });
+  }
+
+  Future<void> sendComment(String text) async {
+    Map<String,dynamic>? comment = await DBService(uid: _auth.userID!).addComment(
+        username, docID, text, commentNum);
+    setState(() {
+      comments.add(comment!);
+    });
+  }
 
   Widget commentChild(data) {
     return ListView(
@@ -89,114 +105,68 @@ class _postCommentViewState extends State<postCommentView> {
       ],
     );
   }
+  @override
+  void initState() {
+    loadComments();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Comment Page"),
-        backgroundColor: Colors.pink,
+        title: Text("Comments"),
+        centerTitle: true,
+        backgroundColor: AppColors.primary,
       ),
-      body: Container(
-        child: CommentBox(
-          userImage:
-          "https://lh3.googleusercontent.com/a-/AOh14GjRHcaendrf6gU5fPIVd8GIl1OgblrMMvGUoCBj4g=s400",
-          child: commentChild(filedata),
-          labelText: 'Write a comment...',
-          withBorder: false,
-          errorText: 'Comment cannot be blank',
-          sendButtonMethod: () {
-            if (formKey.currentState!.validate()) {
-              print(commentController.text);
-              setState(() {
-                var value = {
-                  'name': 'New User',
-                  'pic':
-                  'https://lh3.googleusercontent.com/a-/AOh14GjRHcaendrf6gU5fPIVd8GIl1OgblrMMvGUoCBj4g=s400',
-                  'message': commentController.text
-                };
-                filedata.insert(0, value);
-              });
-              commentController.clear();
-              FocusScope.of(context).unfocus();
-            } else {
-              print("Not validated");
-            }
-          },
-          formKey: formKey,
-          commentController: commentController,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          sendWidget: Icon(Icons.send_sharp, size: 30, color: Colors.white),
-        ),
+      body: FutureBuilder(
+        future: DBService(uid:_auth.userID!).profilePicture,
+        builder:(BuildContext context, AsyncSnapshot snapshot)
+        {
+          if (snapshot.hasData) {
+            String pp = snapshot.data;
+            return Container(
+              child: CommentBox(
+                userImage:
+                pp,
+                child: commentChild(comments),
+                labelText: 'Write a comment...',
+                withBorder: false,
+                errorText: 'Comment cannot be blank',
+                sendButtonMethod: () {
+                  if (formKey.currentState!.validate()) {
+                    print(commentController.text);
+                    sendComment(commentController.text);
+                    commentController.clear();
+                    FocusScope.of(context).unfocus();
+                  } else {
+                    print("Not validated");
+                  }
+                },
+                formKey: formKey,
+                commentController: commentController,
+                backgroundColor: Colors.white,
+                textColor: Colors.black,
+                sendWidget: Icon(
+                    Icons.send_sharp, size: 30, color: AppColors.primary),
+              ),
+            );
+          }
+          else if (snapshot.hasError){
+            print(snapshot.error.toString());
+            return Text('something went wrong');
+          }
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children:[
+              Center(child:
+            CircularProgressIndicator(color: AppColors.primary,)
+            ),
+          ]
+          );
+        }
       ),
     );
   }
-
-
-
-
 
 }
-
-
-/*
-List<String> _comments = ['shah', 'Berfu', 'Buse'];
-
-  void _addComment(String val) {
-    setState(() {
-      _comments.add(val);
-    });
-  }
-
-  Widget _buildCommentList() {
-    return ListView.builder(
-        itemBuilder: (context, index) {
-          try {
-            if(index < _comments.length) {
-              return _buildCommentItem(_comments[index]);
-            }
-          } catch(e) {
-            print(e.toString());
-          }
-    }
-    );
-  }
-
-  Widget _buildCommentItem(String comment) {
-    return ListTile(title: Text(comment));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        title: Text('Comments'),
-        centerTitle: true,
-        actions: [
-
-        ],
-      ),
-      body: Column( children: <Widget>[Expanded(child: _buildCommentList()),
-        TextField(
-          onSubmitted: (String submittedStr) {
-            _addComment(submittedStr);
-          },
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.all(20.0),
-            hintText: "Add comment"
-          ),
-
-        )
-
-        ],
-
-      ),
-
-
-    );
-  }
- */

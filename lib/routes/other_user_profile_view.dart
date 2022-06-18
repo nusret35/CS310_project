@@ -50,10 +50,9 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     });
   }
 
-  _leaveComment(){
-    setState(() {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView()));
-    });
+  _leaveComment(String docID, int commentNum){
+    String username = docID.substring(0, docID.indexOf('-'));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView(username: username, docID: docID,commentNum: commentNum ,)));
 
   }
 
@@ -125,7 +124,7 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     for(int i= 0; i< userPosts.length; i++)
     {
       Post post = userPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments!, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
     }
     setState(() {
       loadedPosts = posts;
@@ -331,7 +330,7 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                        likeButtonAction: (){
                          increamentLike(post);
                        }, commentButtonAction: () {
-                         _leaveComment();
+                         _leaveComment(post.docID, post.comments);
                      }, starButtonAction: (){
                        favoritePost(post);
                      },

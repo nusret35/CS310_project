@@ -123,7 +123,8 @@ class _AddPostViewState extends State<AddPostView> {
                       ),
                     ),
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         child:

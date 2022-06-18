@@ -129,12 +129,19 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-
-                    IconButton(
-                      icon: Icon(Icons.chat_bubble_outline),
-
-                      color: AppColors.color_blue,
+                    TextButton.icon(
                       onPressed: commentButtonAction,
+                      icon: Icon(
+                        Icons.chat_bubble_outline,
+                        color: AppColors.color_blue,
+                      ),
+                      label:  Text(
+                        post.comments.toString(),
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300
+                        ),
+                      ),
                     ),
 
 

@@ -78,12 +78,12 @@ class _FeedViewState extends State<FeedView> {
     for(int i = 0; i < friendsPosts.length; i++)
     {
       Post post  = friendsPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID,location: post.location));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments!, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID,location: post.location));
     }
     for(int i= 0; i< currentUserPosts.length; i++)
     {
       Post post = currentUserPosts[i];
-      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments!, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
     }
      setState(() {
        loadedPosts = posts;
@@ -115,11 +115,9 @@ class _FeedViewState extends State<FeedView> {
     });
   }
 
-  _leaveComment(){
-    setState(() {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView()));
-    });
-
+  _leaveComment(String docID, int commentNum){
+      String username = docID.substring(0, docID.indexOf('-'));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView(username: username, docID: docID, commentNum: commentNum,)));
   }
 
   List<FormPost> loadedPosts = [];
@@ -154,7 +152,7 @@ class _FeedViewState extends State<FeedView> {
                   likeButtonAction: (){
                     increamentLike(post);
                 }, commentButtonAction: () {
-                    _leaveComment();
+                    _leaveComment(post.docID, post.comments);
                 }, starButtonAction: (){
                     favoritePost(post);
                     },

@@ -1,5 +1,7 @@
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -58,18 +60,34 @@ class DBService {
     }
   }
 
-  Future addComment(String username, String docID, String comment) async {
+  Future<Map<String,dynamic>?> addComment(String username, String docID, String comment, int comments) async {
     try {
       AppUser cu = await currentUser as AppUser;
       String docIDC = '${cu.username}-${DateTime.now()}';
       await postCollection.doc(username).collection('posts').doc(docID).collection('userComments').doc(docIDC).set({
-        'Comment' : comment
+        'comment' : comment
       });
-
+      await updateComments(username, docID,comments);
+      return {
+        "name": username,
+        "message": comment,
+        "pic": await profilePicture,
+      };
     } catch(e) {
       print(e.toString());
     }
+  }
 
+  Future<List<Map<String, dynamic>>> getComments(String username, String docID) async {
+
+    QuerySnapshot snapshot = await postCollection.doc(username).collection('posts').doc(docID).collection('userComments').get();
+    return snapshot.docs.map((doc) {
+      String username = doc.id.substring(0, doc.id.indexOf('-'));
+      return {
+        "username": username,
+        "comment": doc.get("comment"),
+      };
+    }).toList();
   }
 
   Future<bool> updateLike(String userName, String docID, int likeNum) async {
@@ -89,6 +107,13 @@ class DBService {
       print(e.toString());
     }
     return !likeBefore;
+  }
+  
+  Future<void> updateComments(String username, String docID, int commentNum) async {
+    commentNum+= 1;
+    await postCollection.doc(username).collection("posts").doc(docID).update({
+      "comments": commentNum
+    });
   }
 
   Future _sendLikeNotification(String username, String docID, int likeNumber) async {
@@ -198,7 +223,8 @@ class DBService {
         content: doc.get('content'),
         mediaURL: doc.get('url'),
         location: doc.get('location'),
-        likes: doc.get('likes')
+        likes: doc.get('likes'),
+        comments: doc.get('comments')
       );
     }).toList();
   }
@@ -328,6 +354,12 @@ class DBService {
     userCollection.doc(uid).update({
       'photoURL': profilePictureURL
     });
+  }
+
+  Future<String> get profilePicture async {
+    AppUser cu = await currentUser;
+    String url = await StorageService().profilePictureUrlByUsername(cu.username);
+    return url;
   }
 
   Future<void> addFriend(String username) async {

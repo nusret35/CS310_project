@@ -13,7 +13,7 @@ class Post {
   String? mediaURL = '';
   String? location;
   int? likes = 0;
-  int comments = 0;
+  int? comments = 0;
 
   Post({
     required this.docID,
@@ -34,5 +34,6 @@ class Post {
     this.mediaURL,
     this.location,
     this.likes,
+    this.comments,
   });
 }
