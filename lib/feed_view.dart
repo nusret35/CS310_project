@@ -74,7 +74,13 @@ class _FeedViewState extends State<FeedView> {
     DBService _db = DBService(uid: _auth.userID!);
     List<Post> currentUserPosts = await _db.allPostsOfCurrentUser;
     List<Post> friendsPosts = await _db.allPostsFromCurrentUsersFriends;
+    List<Post> topicPosts = await _db.allPostsFromCurrentUserFollowedTopics;
     List<FormPost> posts = [];
+
+    for(int i = 0; i < topicPosts.length; i++) {
+      Post post = topicPosts[i];
+      posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments!, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
+    }
     for(int i = 0; i < friendsPosts.length; i++)
     {
       Post post  = friendsPosts[i];
@@ -85,6 +91,7 @@ class _FeedViewState extends State<FeedView> {
       Post post = currentUserPosts[i];
       posts.add(FormPost(title: post.title, content: post.content, time: readTimestamp(post.time!.seconds), likes: post.likes!, comments: post.comments!, profilePictureURL: await StorageService().profilePictureUrlByUsername(post.username!), mediaURL: post.mediaURL, docID: post.docID, location: post.location));
     }
+
      setState(() {
        loadedPosts = posts;
      });

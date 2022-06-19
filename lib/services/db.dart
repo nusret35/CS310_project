@@ -415,6 +415,13 @@ class DBService {
     });
   }
 
+  Future<QuerySnapshot> getFollowedTopicsOfCurrentUserSnapshot() async {
+    final CollectionReference topicCollectionRef = userCollection.doc(uid).collection('followedTopics');
+    return await topicCollectionRef.get().catchError((e) {
+      print(e.toString());
+    });
+  }
+
 
   Future<AppUser> get currentUser async {
     Future<DocumentSnapshot> apiSnapshot = getCurrentUserSnapshot();
@@ -431,6 +438,13 @@ class DBService {
     }).toList();
   }
 
+  Future<List<String>> get followedTopicsOfCurrentUser async {
+    QuerySnapshot snapshot = await getFollowedTopicsOfCurrentUserSnapshot();
+    return snapshot.docs.map((doc) {
+      return doc.reference.id;
+    }).toList();
+  }
+
   Future<List<Post>> get allPostsOfCurrentUser async {
     AppUser user = await currentUser;
     return await getUserPosts(user.username);
@@ -442,6 +456,16 @@ class DBService {
     for(int i = 0; i< friends.length ; i++) {
       String username = friends[i];
       posts += await getUserPosts(username);
+    }
+    return posts;
+  }
+
+  Future<List<Post>> get allPostsFromCurrentUserFollowedTopics async {
+    List<String> topics = await followedTopicsOfCurrentUser;
+    List<Post> posts = [];
+    for(int i = 0; i < topics.length ; i++) {
+      String topic = topics[i];
+      posts += await getTopicPosts(topic);
     }
     return posts;
   }
