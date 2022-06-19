@@ -6,6 +6,7 @@ import 'package:untitled/services/auth.dart';
 import 'package:untitled/services/crashlytics.dart';
 import 'package:untitled/services/db.dart';
 import 'package:untitled/util/colors.dart';
+import 'package:untitled/routes/location_posts_view.dart';
 
 
 class SearchView extends StatefulWidget {
@@ -25,9 +26,13 @@ class _SearchViewState extends State<SearchView> {
 
   List<String> _allTopics = [];
 
+  List<String> _allLocations = [];
+
   List<Map<String, dynamic>> _foundUsers = [];
 
   List<String> _foundTopics = [];
+
+  List<String> _foundLocations = [];
 
   bool keyEntered = false;
 
@@ -36,21 +41,27 @@ class _SearchViewState extends State<SearchView> {
 
   Future<void> loadTopics() async{
     _allTopics = await DBService(uid: _auth.userID!).topicSearchResults;
-    //_foundTopics = _allTopics;
+}
+
+Future<void> loadLocations() async {
+    _allLocations = await DBService(uid: _auth.userID!).locationSearchResults;
+    print(_allLocations.isEmpty);
 }
 
   @override
   void initState() {
-    // TODO: implement initState
+
     DBService _db = DBService(uid: _auth.userID!);
     _foundUsers = _allUsers;
     loadTopics();
+    loadLocations();
     super.initState();
   }
 
   void _runFilter(String enterdKeyboard) {
     List<Map<String, dynamic>> results = [];
     List<String> topicResults = [];
+    List<String> locationResults = [];
 
     if(enterdKeyboard.isEmpty) {
 
@@ -66,13 +77,15 @@ class _SearchViewState extends State<SearchView> {
       });
       topicResults = _allTopics.where((topic) => topic.contains(enterdKeyboard)).toList();
     }
-
-    else {
+    else{
       setState(() {
         keyEntered = true;
       });
       results = _allUsers.where((user) =>
           user["username"].toString().toLowerCase().contains(enterdKeyboard.toLowerCase())).toList();
+      if (results.isEmpty){
+        locationResults = _allLocations.where((location) => location.contains(enterdKeyboard)).toList();
+      }
     }
     setState(() {
       _foundTopics = topicResults;
@@ -80,6 +93,10 @@ class _SearchViewState extends State<SearchView> {
 
     setState(() {
       _foundUsers = results;
+    });
+
+    setState(() {
+      _foundLocations = locationResults;
     });
   }
 
@@ -127,7 +144,7 @@ class _SearchViewState extends State<SearchView> {
                                   ),
                                 )
                               ]
-                          :
+                              :
                           _foundUsers.isNotEmpty
                             ? _foundUsers.map((user) =>
                             SearchResultTile
@@ -138,23 +155,28 @@ class _SearchViewState extends State<SearchView> {
                             )
                         ).toList()
                             :
+                            _foundLocations.isNotEmpty
+                            ? _foundLocations.map((location) =>
+                                SearchLocationResultTile(location)
+                            ).toList()
+                            :
                             keyEntered ?
-                          [
-                            SizedBox(height:70),
-                            Center(
-                              child: const Text('No results found',
-                                style: TextStyle(fontSize: 24),
-                              ),
-                            )
-                          ]
-                        :
-                          [
-                            SizedBox(height:70),
-                            Center(
-                              child: const Text('Search',
-                                style: TextStyle(fontSize: 20, color: Colors.grey),
-                              ),
-                            )
+                              [
+                                SizedBox(height:70),
+                                Center(
+                                  child: const Text('No results found',
+                                    style: TextStyle(fontSize: 24),
+                                  ),
+                                )
+                              ]
+                           :
+                            [
+                              SizedBox(height:70),
+                              Center(
+                                child: const Text('Search',
+                                  style: TextStyle(fontSize: 20, color: Colors.grey),
+                                ),
+                              )
                           ]
                       );
                   }
@@ -248,6 +270,43 @@ class _SearchViewState extends State<SearchView> {
                       children: [
                         Text(
                           topic,
+                          style: TextStyle(
+                              color: Colors.black
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ]
+                  ),
+                ],
+              ),
+              SizedBox(height: 10.0,),
+              Divider(thickness: 1.0,)
+            ]
+        ),
+      ),
+    );
+  }
+
+  Widget SearchLocationResultTile(String location)
+  {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(padding: EdgeInsets.all(0), elevation: 0),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => LocationPostsView(location: location)));
+      },
+      child: Container(
+        color: Colors.white,
+        child: Column(
+            children: [
+              SizedBox(height: 10.0,),
+              Row(
+                children: [
+                  SizedBox(width: 10.0,),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          location,
                           style: TextStyle(
                               color: Colors.black
                           ),

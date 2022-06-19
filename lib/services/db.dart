@@ -489,6 +489,11 @@ class DBService {
     return _searchTopicResultListFromSnapshot(snapshot);
   }
 
+  Future<List<String>> get locationSearchResults async {
+    QuerySnapshot snapshot = await locationCollection.get();
+    return _searchTopicResultListFromSnapshot(snapshot);
+  }
+
 
   AppUser? _getRealTimeUser(DocumentSnapshot snapshot) {
     final Map<String,dynamic> json = snapshot.data() as Map<String,dynamic>;
