@@ -88,6 +88,29 @@ class DBService {
     }
   }
 
+  Future sendLocationPost(Post post) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+      {
+        post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+      }
+      await FirebaseFirestore.instance.collection('locations').doc(post.location).collection('posts').doc(docID).set({
+        'username':cu.username,
+        'title': post.title,
+        'content': post.content,
+        'time': Timestamp.now(),
+        'likes': 0,
+        'comments': 0,
+        'url':post.mediaURL ?? '',
+        'location':post.location ?? ''
+      });
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
   Future<Map<String,dynamic>?> addComment(String username, String docID, String comment, int comments) async {
     try {
       AppUser cu = await currentUser as AppUser;
@@ -191,7 +214,12 @@ class DBService {
       return true;
     return false;
   }
-
+ Future<bool> checkIfUserFollowingTheTopic(String topic) async {
+    DocumentSnapshot snapshot = await userCollection.doc(uid).collection("followedTopics").doc(topic).get();
+    if (snapshot.exists)
+      return true;
+    return false;
+ }
 
 
   Future friendRequestsStatus() async {

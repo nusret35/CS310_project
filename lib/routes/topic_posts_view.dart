@@ -24,6 +24,7 @@ class _TopicPostsViewState extends State<TopicPostsView> {
   String topic;
   List<FormPost> loadedPosts = [];
   bool postsIsEmpty = false;
+  bool isFollowing = false;
   AuthService _auth = AuthService();
   Color buttonColor  = AppColors.primary;
   String buttonTitle = 'Follow';
@@ -54,6 +55,10 @@ class _TopicPostsViewState extends State<TopicPostsView> {
         postsIsEmpty = true;
       }
     });
+  }
+
+  Future checkIfFollows() async {
+     isFollowing = await DBService(uid: _auth.userID!).checkIfUserFollowingTheTopic(topic);
   }
 
   Future followTopic() async {
@@ -129,6 +134,7 @@ class _TopicPostsViewState extends State<TopicPostsView> {
 
   @override
   void initState() {
+    checkIfFollows();
     loadPosts();
     super.initState();
   }
@@ -155,27 +161,50 @@ class _TopicPostsViewState extends State<TopicPostsView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                OutlinedButton(onPressed: followTopic,
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
-                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                    ),
-                    child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(buttonTitle,
-                            style: TextStyle(
-                                fontSize: 15.0
-                            ),
+                isFollowing ?
+                  OutlinedButton(onPressed: null,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.lightBlueAccent),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Following',
+                                  style: TextStyle(
+                                      fontSize: 15.0
+                                  ),
+                                ),
+                              ]
                           ),
-                        ]
+                        ),
+                      )
+                  )
+                  :
+                  OutlinedButton(onPressed: followTopic,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(buttonColor),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      ),
+                      child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 50.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(buttonTitle,
+                              style: TextStyle(
+                                  fontSize: 15.0
+                              ),
+                            ),
+                          ]
+                      ),
                     ),
+                  )
                   ),
-                )
-                ),
               SizedBox(height: 10.0),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,

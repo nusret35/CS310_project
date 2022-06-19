@@ -36,7 +36,7 @@ class _SearchViewState extends State<SearchView> {
 
   Future<void> loadTopics() async{
     _allTopics = await DBService(uid: _auth.userID!).topicSearchResults;
-    _foundTopics = _allTopics;
+    //_foundTopics = _allTopics;
 }
 
   @override
@@ -64,7 +64,7 @@ class _SearchViewState extends State<SearchView> {
         keyEntered = true;
         searchingForTopics = true;
       });
-      topicResults = _allTopics.where((topic) => topic.contains(enterdKeyboard.toLowerCase())).toList();
+      topicResults = _allTopics.where((topic) => topic.contains(enterdKeyboard)).toList();
     }
 
     else {
@@ -74,6 +74,9 @@ class _SearchViewState extends State<SearchView> {
       results = _allUsers.where((user) =>
           user["username"].toString().toLowerCase().contains(enterdKeyboard.toLowerCase())).toList();
     }
+    setState(() {
+      _foundTopics = topicResults;
+    });
 
     setState(() {
       _foundUsers = results;

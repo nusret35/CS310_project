@@ -41,6 +41,9 @@ class _AddPostViewState extends State<AddPostView> {
     if (title[0] == "#") {
       db.sendTagPost(Post(username:'',title: title, content: content, media: _image,docID: '',location: _locationName));
     }
+    if (_locationName != null) {
+      db.sendLocationPost(Post(username:'',title: title, content: content, media: _image,docID: '',location: _locationName));
+    }
     Navigator.of(context).pop(true);
   }
 
