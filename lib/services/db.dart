@@ -16,6 +16,7 @@ class DBService {
   final CollectionReference topicCollection = FirebaseFirestore.instance.collection('topics');
   final CollectionReference friendRequestCollection = FirebaseFirestore.instance.collection('friendRequest');
   final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
+  final CollectionReference locationCollection = FirebaseFirestore.instance.collection('locations');
 
   final usersRef = FirebaseFirestore.instance.collection('users').withConverter<AppUser>(
       fromFirestore: (snapshot, _) => AppUser.fromJson(snapshot.data()!),
@@ -200,6 +201,10 @@ class DBService {
     await userCollection.doc(uid).collection('followedTopics').doc(topic).set({});
   }
 
+  Future followLocation(String location) async {
+    await userCollection.doc(uid).collection('followedLocations').doc(location).set({});
+  }
+
   Future<bool> isFriendRequestSentBefore(String username) async {
     AppUser cu = await currentUser;
     DocumentSnapshot snapshot = await friendRequestCollection.doc(username).collection('requests').doc(cu.username).get();
@@ -219,6 +224,13 @@ class DBService {
     if (snapshot.exists)
       return true;
     return false;
+ }
+
+ Future<bool> checkIfUserFollowingTheLocation(String location) async {
+   DocumentSnapshot snapshot = await userCollection.doc(uid).collection("followedLocations").doc(location).get();
+   if (snapshot.exists)
+     return true;
+   return false;
  }
 
 
@@ -301,6 +313,13 @@ class DBService {
 
   Future<List<Post>> getTopicPosts(String topic) async {
     final CollectionReference ref = topicCollection.doc(topic).collection('posts');
+    QuerySnapshot snapshot = await ref.get();
+    List<Post> postsOfTopic = await _postsListFromSnapshot(snapshot);
+    return _sortPosts(postsOfTopic);
+  }
+
+  Future<List<Post>> getLocationPosts(String location) async {
+    final CollectionReference ref = locationCollection.doc(location).collection('posts');
     QuerySnapshot snapshot = await ref.get();
     List<Post> postsOfTopic = await _postsListFromSnapshot(snapshot);
     return _sortPosts(postsOfTopic);
