@@ -39,6 +39,12 @@ class _LocationPostsViewState extends State<LocationPostsView> {
     });
   }
 
+  void reportUser(FormPost post) async {
+    DBService _db = DBService(uid: _auth.userID!);
+    String username = post.docID.substring(0, post.docID.indexOf('-'));
+    await _db.reportUser(username);
+  }
+
   Future loadPosts() async {
     DBService _db = DBService(uid: _auth.userID!);
     List<Post> userPosts = await _db.getLocationPosts(location);
@@ -217,6 +223,9 @@ class _LocationPostsViewState extends State<LocationPostsView> {
                       }, starButtonAction: (){
                         favoritePost(post);
                       },
+                        reportButtonAction: () {
+                          reportUser(post);
+                        },
                       )
                       ).toList()
                 :

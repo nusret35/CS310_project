@@ -50,6 +50,12 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
     });
   }
 
+  void reportUser(FormPost post) async {
+    DBService _db = DBService(uid: _auth.userID!);
+    String username = post.docID.substring(0, post.docID.indexOf('-'));
+    await _db.reportUser(username);
+  }
+
   _leaveComment(String docID, int commentNum){
     String username = docID.substring(0, docID.indexOf('-'));
     Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView(username: username, docID: docID,commentNum: commentNum ,)));
@@ -334,6 +340,9 @@ class _OtherUserProfileViewState extends State<OtherUserProfileView> {
                      }, starButtonAction: (){
                        favoritePost(post);
                      },
+                       reportButtonAction: (){
+                         reportUser(post);
+                       },
                      )
                      ).toList()
                          :

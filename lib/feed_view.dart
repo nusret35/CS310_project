@@ -115,6 +115,13 @@ class _FeedViewState extends State<FeedView> {
     });
   }
 
+  void reportUser(FormPost post) async {
+    DBService _db = DBService(uid: _auth.userID!);
+    String username = post.docID.substring(0, post.docID.indexOf('-'));
+    await _db.reportUser(username);
+  }
+
+
   _leaveComment(String docID, int commentNum){
       String username = docID.substring(0, docID.indexOf('-'));
       Navigator.push(context, MaterialPageRoute(builder: (context) => postCommentView(username: username, docID: docID, commentNum: commentNum,)));
@@ -156,6 +163,7 @@ class _FeedViewState extends State<FeedView> {
                 }, starButtonAction: (){
                     favoritePost(post);
                     },
+                  reportButtonAction: (){reportUser(post);},
                     )
                     ).toList(),
                   ),

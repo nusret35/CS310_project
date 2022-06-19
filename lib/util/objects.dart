@@ -31,13 +31,37 @@ class PostCard extends StatelessWidget {
   final VoidCallback likeButtonAction;
   final VoidCallback commentButtonAction;
   final VoidCallback starButtonAction;
+  final VoidCallback reportButtonAction;
 
   PostCard(
       this.post, {
         required this.likeButtonAction,
         required this.commentButtonAction,
         required this.starButtonAction,
+        required this.reportButtonAction,
       });
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Alert!!"),
+          content: Text("Do you want to report this user ?"),
+          actions: [
+            MaterialButton(
+              child: Text("OK"),
+              onPressed: () {
+                reportButtonAction;
+                Text("reportButtonPressed");
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +76,7 @@ class PostCard extends StatelessWidget {
               children: [
                 (post.location=='') ?
                 SizedBox()
-                :
+                    :
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(children: [
@@ -72,9 +96,9 @@ class PostCard extends StatelessWidget {
                         child: Text(
                           post.title,
                           style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            overflow: TextOverflow.ellipsis
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                              overflow: TextOverflow.ellipsis
                           ),
                         ),
                       ),
@@ -86,6 +110,18 @@ class PostCard extends StatelessWidget {
                             fontSize: 14,
                             fontWeight: FontWeight.w300,
                           ),
+                        ),
+                      ),
+                      Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: PopupMenuButton(
+                          itemBuilder: (context) => [
+                            PopupMenuItem(
+                              child: Text('Report User'),
+                              onTap: reportButtonAction,
+                            )
+                          ],
                         ),
                       ),
                     ]
@@ -100,9 +136,9 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                child: (post.mediaURL != '') ?
+                    child: (post.mediaURL != '') ?
                     Image(image:NetworkImage(post.mediaURL!))
-                :
+                        :
                     SizedBox()
                 ),
                 Row(
@@ -129,19 +165,12 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    TextButton.icon(
+
+                    IconButton(
+                      icon: Icon(Icons.chat_bubble_outline),
+
+                      color: AppColors.color_blue,
                       onPressed: commentButtonAction,
-                      icon: Icon(
-                        Icons.chat_bubble_outline,
-                        color: AppColors.color_blue,
-                      ),
-                      label:  Text(
-                        post.comments.toString(),
-                        style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w300
-                        ),
-                      ),
                     ),
 
 

@@ -205,6 +205,19 @@ class DBService {
     await userCollection.doc(uid).collection('followedLocations').doc(location).set({});
   }
 
+  Future reportUser( String username) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docIDC = '${cu.username}-${DateTime.now()}';
+      await userCollection.doc(uid).collection('reportedPost').doc(docIDC).set({
+        'reportedPostOwner' : username
+      });
+
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
   Future<bool> isFriendRequestSentBefore(String username) async {
     AppUser cu = await currentUser;
     DocumentSnapshot snapshot = await friendRequestCollection.doc(username).collection('requests').doc(cu.username).get();
@@ -491,6 +504,7 @@ class DBService {
 
   Future<List<String>> get locationSearchResults async {
     QuerySnapshot snapshot = await locationCollection.get();
+    print(snapshot.size);
     return _searchTopicResultListFromSnapshot(snapshot);
   }
 
