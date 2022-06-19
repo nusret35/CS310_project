@@ -1,5 +1,7 @@
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -11,9 +13,10 @@ class DBService {
   final String uid;
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
+  final CollectionReference topicCollection = FirebaseFirestore.instance.collection('topics');
   final CollectionReference friendRequestCollection = FirebaseFirestore.instance.collection('friendRequest');
   final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
-
+  final CollectionReference locationCollection = FirebaseFirestore.instance.collection('locations');
 
   final usersRef = FirebaseFirestore.instance.collection('users').withConverter<AppUser>(
       fromFirestore: (snapshot, _) => AppUser.fromJson(snapshot.data()!),
@@ -44,6 +47,10 @@ class DBService {
     try {
       AppUser cu = await currentUser as AppUser;
       String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+        {
+          post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+        }
       await postCollection.doc(cu.username).collection('posts').doc(docID).set({
         'username':cu.username,
         'title': post.title,
@@ -59,32 +66,82 @@ class DBService {
     }
   }
 
-  Future addComment(String username, String docID, String comment) async {
+  Future sendTagPost(Post post) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+      {
+        post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+      }
+      await FirebaseFirestore.instance.collection('topics').doc(post.title).collection('posts').doc(docID).set({
+        'username':cu.username,
+        'title': post.title,
+        'content': post.content,
+        'time': Timestamp.now(),
+        'likes': 0,
+        'comments': 0,
+        'url':post.mediaURL ?? '',
+        'location':post.location ?? ''
+      });
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
+  Future sendLocationPost(Post post) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+      {
+        post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+      }
+      await FirebaseFirestore.instance.collection('locations').doc(post.location).collection('posts').doc(docID).set({
+        'username':cu.username,
+        'title': post.title,
+        'content': post.content,
+        'time': Timestamp.now(),
+        'likes': 0,
+        'comments': 0,
+        'url':post.mediaURL ?? '',
+        'location':post.location ?? ''
+      });
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
+  Future<Map<String,dynamic>?> addComment(String username, String docID, String comment, int comments) async {
     try {
       AppUser cu = await currentUser as AppUser;
       String docIDC = '${cu.username}-${DateTime.now()}';
       await postCollection.doc(username).collection('posts').doc(docID).collection('userComments').doc(docIDC).set({
-        'Comment' : comment
+        'comment' : comment
       });
-
-    } catch(e) {
-      print(e.toString());
-    }
-
-  }
-
-  Future reportUser( String username) async {
-    try {
-      AppUser cu = await currentUser as AppUser;
-      String docIDC = '${cu.username}-${DateTime.now()}';
-      await userCollection.doc(uid).collection('reportedPost').doc(docIDC).set({
-        'reportedPostOwner' : username
-      });
-
+      await updateComments(username, docID,comments);
+      return {
+        "name": username,
+        "message": comment,
+        "pic": await profilePicture,
+      };
     } catch(e) {
       print(e.toString());
     }
   }
+
+  Future<List<Map<String, dynamic>>> getComments(String username, String docID) async {
+
+    QuerySnapshot snapshot = await postCollection.doc(username).collection('posts').doc(docID).collection('userComments').get();
+    return snapshot.docs.map((doc) {
+      String username = doc.id.substring(0, doc.id.indexOf('-'));
+      return {
+        "username": username,
+        "comment": doc.get("comment"),
+      };
+    }).toList();
+  }
+
   Future<bool> updateLike(String userName, String docID, int likeNum) async {
     AppUser cu = await currentUser as AppUser;
     bool likeBefore = await islikedBefore(userName, docID);
@@ -102,6 +159,13 @@ class DBService {
       print(e.toString());
     }
     return !likeBefore;
+  }
+  
+  Future<void> updateComments(String username, String docID, int commentNum) async {
+    commentNum+= 1;
+    await postCollection.doc(username).collection("posts").doc(docID).update({
+      "comments": commentNum
+    });
   }
 
   Future _sendLikeNotification(String username, String docID, int likeNumber) async {
@@ -132,6 +196,15 @@ class DBService {
     await friendRequestCollection.doc(cu.username).collection('sentRequests').doc(username).set({"status": "pending"});
   }
 
+
+  Future followTopic(String topic) async {
+    await userCollection.doc(uid).collection('followedTopics').doc(topic).set({});
+  }
+
+  Future followLocation(String location) async {
+    await userCollection.doc(uid).collection('followedLocations').doc(location).set({});
+  }
+
   Future<bool> isFriendRequestSentBefore(String username) async {
     AppUser cu = await currentUser;
     DocumentSnapshot snapshot = await friendRequestCollection.doc(username).collection('requests').doc(cu.username).get();
@@ -146,6 +219,20 @@ class DBService {
       return true;
     return false;
   }
+ Future<bool> checkIfUserFollowingTheTopic(String topic) async {
+    DocumentSnapshot snapshot = await userCollection.doc(uid).collection("followedTopics").doc(topic).get();
+    if (snapshot.exists)
+      return true;
+    return false;
+ }
+
+ Future<bool> checkIfUserFollowingTheLocation(String location) async {
+   DocumentSnapshot snapshot = await userCollection.doc(uid).collection("followedLocations").doc(location).get();
+   if (snapshot.exists)
+     return true;
+   return false;
+ }
+
 
   Future friendRequestsStatus() async {
     AppUser uc = await currentUser;
@@ -211,7 +298,8 @@ class DBService {
         content: doc.get('content'),
         mediaURL: doc.get('url'),
         location: doc.get('location'),
-        likes: doc.get('likes')
+        likes: doc.get('likes'),
+        comments: doc.get('comments')
       );
     }).toList();
   }
@@ -221,6 +309,20 @@ class DBService {
     QuerySnapshot snapshot = await ref.get();
     List<Post> postsOfUser = await _postsListFromSnapshot(snapshot);
     return _sortPosts(postsOfUser);
+  }
+
+  Future<List<Post>> getTopicPosts(String topic) async {
+    final CollectionReference ref = topicCollection.doc(topic).collection('posts');
+    QuerySnapshot snapshot = await ref.get();
+    List<Post> postsOfTopic = await _postsListFromSnapshot(snapshot);
+    return _sortPosts(postsOfTopic);
+  }
+
+  Future<List<Post>> getLocationPosts(String location) async {
+    final CollectionReference ref = locationCollection.doc(location).collection('posts');
+    QuerySnapshot snapshot = await ref.get();
+    List<Post> postsOfTopic = await _postsListFromSnapshot(snapshot);
+    return _sortPosts(postsOfTopic);
   }
 
 
@@ -267,6 +369,12 @@ class DBService {
         "username": doc.get("username"),
         "photoURL": doc.get("photoURL"),
     };
+    }).toList();
+  }
+
+  List<String> _searchTopicResultListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return doc.id;
     }).toList();
   }
 
@@ -343,6 +451,12 @@ class DBService {
     });
   }
 
+  Future<String> get profilePicture async {
+    AppUser cu = await currentUser;
+    String url = await StorageService().profilePictureUrlByUsername(cu.username);
+    return url;
+  }
+
   Future<void> addFriend(String username) async {
     await userCollection.doc(uid).collection('friends').doc(username).set({
       'time': DateTime.now()
@@ -368,6 +482,16 @@ class DBService {
 
   Stream<List<Map<String, dynamic>>> get searchResults {
     return  userCollection.snapshots().map(_searchUserResultListFromSnapshot);
+  }
+
+  Future<List<String>> get topicSearchResults async {
+    QuerySnapshot snapshot = await topicCollection.get();
+    return _searchTopicResultListFromSnapshot(snapshot);
+  }
+
+  Future<List<String>> get locationSearchResults async {
+    QuerySnapshot snapshot = await locationCollection.get();
+    return _searchTopicResultListFromSnapshot(snapshot);
   }
 
 

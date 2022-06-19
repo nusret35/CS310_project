@@ -26,44 +26,18 @@ class FormPost {
   });
 }
 
-
-
 class PostCard extends StatelessWidget {
   final FormPost post;
   final VoidCallback likeButtonAction;
   final VoidCallback commentButtonAction;
   final VoidCallback starButtonAction;
-  final VoidCallback reportButtonAction;
 
   PostCard(
       this.post, {
         required this.likeButtonAction,
         required this.commentButtonAction,
         required this.starButtonAction,
-        required this.reportButtonAction,
       });
-
-  void _showDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Alert!!"),
-          content: Text("Do you want to report this user ?"),
-          actions: [
-            MaterialButton(
-              child: Text("OK"),
-              onPressed: () {
-                reportButtonAction;
-                Text("reportButtonPressed");
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,18 +88,6 @@ class PostCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                                child: Text('Report User'),
-                              onTap: reportButtonAction,
-                            )
-                          ],
-                        ),
-                      ),
                     ]
                 ),
                 Padding(
@@ -167,12 +129,19 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-
-                    IconButton(
-                      icon: Icon(Icons.chat_bubble_outline),
-
-                      color: AppColors.color_blue,
+                    TextButton.icon(
                       onPressed: commentButtonAction,
+                      icon: Icon(
+                        Icons.chat_bubble_outline,
+                        color: AppColors.color_blue,
+                      ),
+                      label:  Text(
+                        post.comments.toString(),
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w300
+                        ),
+                      ),
                     ),
 
 
@@ -332,45 +301,3 @@ class EventCard extends StatelessWidget {
     );
   }
 }
-
-/*
-PopupMenuButton<int>(
-
-                          itemBuilder: (context) => [
-                          // PopupMenuItem 1
-                          PopupMenuItem(
-                            value: 1,
-                          child: Row(
-                            children: [
-                              Icon(Icons.report_outlined),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text("Report User")
-                            ],
-                          ),
-                        ),
-                      ],
-                        onSelected: (value) {
-                          reportButtonAction;
-                        },
-                      ),
- */
-
-/*
-TextButton.icon(
-                            onPressed: reportButtonAction,
-                            icon: Icon(
-                              Icons.report_outlined,
-                              size: 14.0,
-                              color: AppColors.color_green,
-                            ),
-                            label: Text(
-                              'Report User',
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300
-                              ),
-                            )
-                        ),
- */
