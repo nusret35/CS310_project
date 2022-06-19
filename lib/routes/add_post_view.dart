@@ -36,7 +36,11 @@ class _AddPostViewState extends State<AddPostView> {
   {
     DBService db = DBService(uid: _auth.userID!);
     _formKey.currentState!.save();
+
     db.sendPost(Post(username:'',title: title, content: content, media: _image,docID: '',location: _locationName));
+    if (title[0] == "#") {
+      db.sendTagPost(Post(username:'',title: title, content: content, media: _image,docID: '',location: _locationName));
+    }
     Navigator.of(context).pop(true);
   }
 

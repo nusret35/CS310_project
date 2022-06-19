@@ -13,6 +13,7 @@ class DBService {
   final String uid;
   final CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   final CollectionReference postCollection = FirebaseFirestore.instance.collection('posts');
+  final CollectionReference topicCollection = FirebaseFirestore.instance.collection('topics');
   final CollectionReference friendRequestCollection = FirebaseFirestore.instance.collection('friendRequest');
   final CollectionReference notificationCollection = FirebaseFirestore.instance.collection('notifications');
 
@@ -45,7 +46,34 @@ class DBService {
     try {
       AppUser cu = await currentUser as AppUser;
       String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+        {
+          post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+        }
       await postCollection.doc(cu.username).collection('posts').doc(docID).set({
+        'username':cu.username,
+        'title': post.title,
+        'content': post.content,
+        'time': Timestamp.now(),
+        'likes': 0,
+        'comments': 0,
+        'url':post.mediaURL ?? '',
+        'location':post.location ?? ''
+      });
+    } catch(e) {
+      print(e.toString());
+    }
+  }
+
+  Future sendTagPost(Post post) async {
+    try {
+      AppUser cu = await currentUser as AppUser;
+      String docID = '${cu.username}-${DateTime.now()}';
+      if (post.media != null)
+      {
+        post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+      }
+      await FirebaseFirestore.instance.collection('topics').doc(post.title).collection('posts').doc(docID).set({
         'username':cu.username,
         'title': post.title,
         'content': post.content,
@@ -144,6 +172,11 @@ class DBService {
     await friendRequestCollection.doc(cu.username).collection('sentRequests').doc(username).set({"status": "pending"});
   }
 
+
+  Future followTopic(String topic) async {
+    await userCollection.doc(uid).collection('followedTopics').doc(topic).set({});
+  }
+
   Future<bool> isFriendRequestSentBefore(String username) async {
     AppUser cu = await currentUser;
     DocumentSnapshot snapshot = await friendRequestCollection.doc(username).collection('requests').doc(cu.username).get();
@@ -158,6 +191,8 @@ class DBService {
       return true;
     return false;
   }
+
+
 
   Future friendRequestsStatus() async {
     AppUser uc = await currentUser;
@@ -236,6 +271,13 @@ class DBService {
     return _sortPosts(postsOfUser);
   }
 
+  Future<List<Post>> getTopicPosts(String topic) async {
+    final CollectionReference ref = topicCollection.doc(topic).collection('posts');
+    QuerySnapshot snapshot = await ref.get();
+    List<Post> postsOfTopic = await _postsListFromSnapshot(snapshot);
+    return _sortPosts(postsOfTopic);
+  }
+
 
   List<Post> _sortPosts(List<Post> posts) {
     List<Post> sortedPosts = [];
@@ -280,6 +322,12 @@ class DBService {
         "username": doc.get("username"),
         "photoURL": doc.get("photoURL"),
     };
+    }).toList();
+  }
+
+  List<String> _searchTopicResultListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.docs.map((doc) {
+      return doc.id;
     }).toList();
   }
 
@@ -387,6 +435,11 @@ class DBService {
 
   Stream<List<Map<String, dynamic>>> get searchResults {
     return  userCollection.snapshots().map(_searchUserResultListFromSnapshot);
+  }
+
+  Future<List<String>> get topicSearchResults async {
+    QuerySnapshot snapshot = await topicCollection.get();
+    return _searchTopicResultListFromSnapshot(snapshot);
   }
 
 
