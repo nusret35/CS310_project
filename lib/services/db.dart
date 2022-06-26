@@ -74,6 +74,14 @@ class DBService {
       {
         post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
       }
+      DocumentSnapshot checkDoc = await FirebaseFirestore.instance.collection('topics').doc(post.title).get();
+      if (!checkDoc.exists)
+      {
+        await FirebaseFirestore.instance.collection('topics').doc(post.title).set({
+          'createdBy': cu.username,
+        });
+        await followTopic(post.title);
+      }
       await FirebaseFirestore.instance.collection('topics').doc(post.title).collection('posts').doc(docID).set({
         'username':cu.username,
         'title': post.title,
@@ -96,6 +104,12 @@ class DBService {
       if (post.media != null)
       {
         post.mediaURL = await StorageService().uploadPostImage(docID, post.media!);
+      }
+      DocumentSnapshot checkDoc = await FirebaseFirestore.instance.collection('locations').doc(post.location).get();
+      if (!checkDoc.exists){
+        await FirebaseFirestore.instance.collection('locations').doc(post.location).set({
+          'createdBy':cu.username
+        });
       }
       await FirebaseFirestore.instance.collection('locations').doc(post.location).collection('posts').doc(docID).set({
         'username':cu.username,
@@ -121,7 +135,7 @@ class DBService {
       });
       await updateComments(username, docID,comments);
       return {
-        "name": username,
+        "name": cu.username,
         "message": comment,
         "pic": await profilePicture,
       };
